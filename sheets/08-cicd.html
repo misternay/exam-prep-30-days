@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 · CI/CD</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="sheet t08">
+<main>
+
+<div class="topbar">
+<a class="brand" href="../index.html">← แผน 30 วัน</a>
+<nav class="jump">
+<a href="#s1">เข้าใจ</a><a href="#s2">ต้องจำ</a><a href="#s3">กับดัก</a><a href="#s4">Self-check</a>
+</nav>
+</div>
+<header class="hero">
+<h1><span class="num">08</span> · CI/CD</h1>
+<p class="source">อ่าน ~35 นาที · อ้างอิงหลัก: GitLab CI docs, GitHub Actions docs, Continuous Delivery (Humble &amp; Farley), DORA metrics</p>
+</header>
+
+<section class="sec s1" id="s1">
+<h2>1. ต้องเข้าใจ</h2>
+
+<h3>CI (Continuous Integration)</h3>
+<ul>
+<li>แนวปฏิบัติ: merge โค้ดเข้า main บ่อยๆ (วันละหลายครั้ง) + ทุกครั้งที่ push/PR มี <strong>build + test อัตโนมัติ</strong></li>
+<li>เป้าหมาย: <strong>จับ integration bug ให้เร็วที่สุด</strong> ก่อนที่ branch จะ diverge ไกล — “merge hell” หายไป</li>
+<li>ของคู่กัน: trunk-based development, PR เล็ก, test ที่เชื่อถือได้ (flaky น้อย)</li>
+</ul>
+
+<h3>CD — Delivery vs Deployment</h3>
+<ul>
+<li><strong>Continuous Delivery</strong> — ทุก commit ที่ผ่าน pipeline “พร้อม deploy” ได้ตลอด; การขึ้น prod เป็น<strong>การตัดสินใจของคน</strong> (กดปุ่ม)</li>
+<li><strong>Continuous Deployment</strong> — ขึ้น prod <strong>อัตโนมัติทุก commit</strong> ที่ผ่าน gate โดยไม่มีคนกด</li>
+<li>ข้อสอบชอบถามคู่ต่างนี้ตรงๆ — ท่องให้ได้ว่า Delivery = พร้อมเสมอ + คนกด, Deployment = อัตโนมัติถึง prod</li>
+</ul>
+
+<h3>Pipeline มาตรฐาน (เรียงตามลำดับ)</h3>
+<ol>
+<li>Checkout (และ trigger: push / PR / tag / schedule)</li>
+<li>Install dependencies (pin version, cache ได้)</li>
+<li>Build / compile</li>
+<li>Unit test (เร็ว — รันก่อน)</li>
+<li>Static checks: lint, type check, SAST, secret scan, SCA (dependency CVE)</li>
+<li>Package → <strong>Artifact</strong> (jar/tarball/container image) → เก็บใน registry พร้อม version</li>
+<li>Deploy ไป environment: dev → staging/UAT → production</li>
+<li>หลัง deploy: smoke test / E2E / integration test</li>
+<li>Ops: migration, cache แจ้งเตือน, monitoring hook</li>
+</ol>
+<ul>
+<li><strong>Build once, deploy everywhere</strong> — artifact เดียวกันทุก env ต่างกันแค่ config/secrets (env vars) — อย่า build ใหม่ต่อ env</li>
+<li><strong>Quality gate</strong> — เงื่อนไขผ่าน เช่น tests ผ่านทั้งหมด, coverage ไม่ตกลง, ไม่มีช่องโหว่ระดับสูง; ไม่ผ่าน = หยุด (block merge)</li>
+</ul>
+
+<h3>Deployment strategies — ท่อง</h3>
+<table>
+<thead><tr><th>กลยุทธ์</th><th>วิธี</th><th>จุดเด่น/ข้อเสีย</th></tr></thead>
+<tbody>
+<tr><td>Recreate</td><td>หยุดเก่า → เริ่มใหม่</td><td>ง่ายสุด แต่ downtime</td></tr>
+<tr><td>Rolling</td><td>ทยอยแทน instance ทีละชุด</td><td>ไม่ downtime แต่ช่วงเปลี่ยนผ่านมีสองเวอร์ชัน</td></tr>
+<tr><td>Blue-Green</td><td>มีสอง environment สลับ traffic</td><td>rollback เร็ว (สลับกลับ) แต่รันสองชุด = แพง/ต้อง DB compatible</td></tr>
+<tr><td>Canary</td><td>ส่ง traffic บาง % ไปเวอร์ชันใหม่ก่อน</td><td>เสี่ยงต่ำ ค่อยขยาย; ต้องมี metric ตรวจ</td></tr>
+<tr><td>Feature flag</td><td>deploy ได้แต่ปิดฟีเจอร์ด้วย flag</td><td>แยก release ออกจาก deploy — เปิด/ปิดไม่ต้อง deploy</td></tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Rollback vs fix-forward</strong> — ระบบควร rollback ได้เร็ว (artifact เก่ายังอยู่), migration ต้องออกแบบ backward-compatible (expand → migrate → contract) ไม่เช่นนั้น rollback พัง</li>
+</ul>
+
+<h3>Pipeline as code &amp; Infra</h3>
+<ul>
+<li>Pipeline เก็บเป็นไฟล์ใน repo: GitLab CI (<code>.gitlab-ci.yml</code> — stages: build, test, deploy + jobs/runners), GitHub Actions (<code>.github/workflows/*.yml</code> — on: push/PR + jobs/steps/runners)</li>
+<li><strong>Secrets ใน CI</strong> — เก็บใน CI secret store/Vault, inject ตอนรัน, ห้าม echo ใน log, mask ค่า</li>
+<li><strong>IaC</strong> — Terraform/CloudFormation: describe infrastructure เป็นโค้ด → review + version ได้, สร้าง env ซ้ำได้</li>
+<li><strong>Environments</strong>: dev (นักพัฒนาทำงาน) → staging/UAT (เหมือน prod, ให้ QA) → prod; promotion ด้วย artifact เดิม</li>
+</ul>
+
+<h3>DORA 4 metrics (วัดความเร็ว+คุณภาพ)</h3>
+<ul>
+<li><strong>Deployment frequency</strong> — ออกบ่อยแค่ไหน · <strong>Lead time for changes</strong> — commit→prod ใช้เวลานานแค่ไหน</li>
+<li><strong>Change failure rate</strong> — deploy แล้วมีปัญหากี่ % · <strong>MTTR</strong> — กลับมาใช้ได้เร็วแค่ไหนเมื่อพัง</li>
+<li>เร็ว 4 ตัวนี้ = ทีมระดับ elite (ตามงานวิจัย DORA)</li>
+<li><strong>อัปเดต:</strong> DORA ปี 2023 เปลี่ยนชื่อ MTTR → <em>failed deployment recovery time</em>; ปี 2024 เพิ่มตัวที่ 5 <em>deployment rework rate</em> — ข้อสอบส่วนใหญ่ยังใช้ “Four Keys” ชุดเดิม</li>
+</ul>
+
+</section>
+
+<section class="sec s2" id="s2">
+<h2>2. ต้องจำ</h2>
+<ul>
+<li>CI = integrate+test อัตโนมัติทุก push; CD: <strong>Delivery = คนกด, Deployment = อัตโนมัติ</strong></li>
+<li>Pipeline stages เรียง: build → unit test → scan → package → deploy → smoke</li>
+<li><strong>Build once, deploy everywhere</strong> (artifact เดียว, ต่างที่ config)</li>
+<li>Strategies 5 ตัว + ข้อดีเสียสั้นๆ</li>
+<li>DORA 4: deploy frequency, lead time, change failure rate, MTTR (+ตัวที่ 5 rework rate เพิ่มปี 2024)</li>
+<li>Rollback ผูกกับ backward-compatible migration</li>
+</ul>
+
+</section>
+
+<section class="sec s3" id="s3">
+<h2>3. กับดักข้อสอบ</h2>
+<ul>
+<li>“Continuous Delivery เหมือน Continuous Deployment” — ต่างกันที่คนกดหรือไม่</li>
+<li>“ต้อง build ใหม่สำหรับ prod เพื่อความมั่นใจ” — ผิด; ใช้ artifact เดิม (สิ่งที่ test คือสิ่งที่ deploy)</li>
+<li>การ test เฉพาะบน staging ก่อน prod ไม่ใช่ข้อเสียของ CD — เป็นเรื่องปกติของ Delivery/Deployment ที่ดี</li>
+<li>Feature flag ≠ branch ยาว — flag อยู่ในโค้ดที่ deploy แล้ว; branch ค้างนานคือศัตรูของ CI</li>
+<li>Pipeline ที่ flaky (test เด้งมั่ว) ทำ team เสียศรัทธา — ต้อง fix ทันที ไม่ใช่ rerun จนผ่าน</li>
+</ul>
+
+</section>
+
+<section class="sec s4" id="s4">
+<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<details><summary>Q1: CI คืออะไรและทำไมต้อง merge บ่อย</summary>A: Continuous Integration = รวมโค้ดกับ main บ่อยๆ + build/test อัตโนมัติทุกครั้ง — ลด integration bug และ merge conflict ใหญ่</details>
+<details><summary>Q2: Continuous Delivery ต่างจาก Continuous Deployment</summary>A: Delivery = ทุก commit ผ่าน pipeline พร้อมขึ้น prod เสมอ แต่คนตัดสินใจกด deploy; Deployment = ขึ้น prod อัตโนมัติทันทีที่ผ่าน gate</details>
+<details><summary>Q3: เล่า pipeline stages มาตรฐาน 6 ขั้น</summary>A: checkout → install/build → test (unit ก่อน) → static/security scan → package artifact → deploy env + smoke test (+promotion ต่อ env)</details>
+<details><summary>Q4: “Build once, deploy everywhere” ทำไมสำคัญ</summary>A: สิ่งที่ test ผ่านคือ binary/image เดียวกับที่ขึ้น prod — ลดความเสี่ยง drift และประหยัดเวลา; env ต่างกันแค่ config/secrets</details>
+<details><summary>Q5: Canary กับ Blue-Green ต่างกันยังไง</summary>A: Blue-Green มีสอง environment เต็มสลับ traffic ทั้งหมด; Canary ปล่อย traffic ส่วนน้อยไปเวอร์ชันใหม่แล้วค่อยๆ เพิ่มตามผลตรวจ</details>
+<details><summary>Q6: ถ้า deploy มีปัญหากลาง prod ทางเลือกมีอะไรบ้าง</summary>A: Rollback ไป artifact เก่า (ต้องเตรียมไว้ + migration backward-compatible) หรือ fix-forward ด้วย hotfix; เลือกตามความรุนแรงและสถานะข้อมูล</details>
+<details><summary>Q7: DORA 4 metrics มีอะไรบ้าง</summary>A: Deployment frequency, Lead time for changes, Change failure rate, MTTR (Time to Restore Service) — ปัจจุบัน DORA เรียก “failed deployment recovery time” และเพิ่ม metric ที่ 5 (rework rate) ในปี 2024</details>
+
+</section>
+
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> Delivery vs Deployment · ตาราง deploy strategies 5 แถว · DORA 4</div>
+
+<nav>ก่อนหน้า: <a href="07-version-control.html">07 · Version Control</a> · ถัดไป: <a href="09-quality-engineering.html">09 · Quality Engineering</a></nav>
+
+</main>
+</body>
+</html>

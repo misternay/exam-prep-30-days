@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Programming</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="sheet t06">
+<main>
+
+<div class="topbar">
+<a class="brand" href="../index.html">← แผน 30 วัน</a>
+<nav class="jump">
+<a href="#s1">เข้าใจ</a><a href="#s2">ต้องจำ</a><a href="#s3">กับดัก</a><a href="#s4">Self-check</a>
+</nav>
+</div>
+<header class="hero">
+<h1><span class="num">06</span> · Programming</h1>
+<p class="source">อ่าน 2 รอบ (D1: ข้อมูล+อัลกอริทึม, D2: กระบวนทัศน์+concurrency) · อ้างอิงหลัก: Big-O Cheat Sheet, MDN, ภาษาเป้าหมายของข้อสอบ</p>
+</header>
+
+<section class="sec s1" id="s1">
+<h2>1. ต้องเข้าใจ</h2>
+
+<h3>โครงสร้างข้อมูล &amp; ความซับซ้อน (round 1)</h3>
+<table>
+<thead><tr><th>โครงสร้าง</th><th>เข้าถึง</th><th>ค้นหา</th><th>เพิ่ม/ลบ</th><th>โน้ต</th></tr></thead>
+<tbody>
+<tr><td>Array</td><td>O(1)</td><td>O(n) (sorted+binsearch O(log n))</td><td>O(n) กลาง, O(1) ท้าย (amortized)</td><td>ต่อเนื่องในหน่วยความจำ cache ดี</td></tr>
+<tr><td>Linked list</td><td>O(n)</td><td>O(n)</td><td>O(1) ถ้ารู้ตำแหน่งโหนด</td><td>สุ่มไม่เร็ว แต่แทรก/ลบในที่ได้</td></tr>
+<tr><td>Hash table</td><td>—</td><td>O(1) เฉลี่ย / O(n) แย่สุด</td><td>O(1) เฉลี่ย</td><td>ชนกันเยอะ = เสื่อม; ไม่เรียงลำดับ</td></tr>
+<tr><td>Balanced BST</td><td>O(log n)</td><td>O(log n)</td><td>O(log n)</td><td>เรียงลำดับให้; แย่สุดก็ log n</td></tr>
+<tr><td>Heap</td><td>O(1) ดูค่าสุด</td><td>O(n)</td><td>O(log n) push/pop</td><td>priority queue, top-k</td></tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Big-O คิด worst-case เป็นหลัก</strong>; บอกได้ทั้งเวลาและพื้นที่ (space)</li>
+<li><strong>Stack = LIFO</strong> (undo, call stack), <strong>Queue = FIFO</strong> (BFS, งานคิว), <strong>Deque</strong> = สองทาง</li>
+<li><strong>Tree traversal:</strong> in/pre/post-order (DFS), level-order (BFS); BST = ซ้ายน้อย–ขวาใหญ่ → in-order ได้เรียง</li>
+<li><strong>Graph:</strong> BFS หา shortest path ในกราฟไม่ถ่วงน้ำหนัก (ใช้ queue); DFS สำรวจ/หา cycle (ใช้ stack/recursion)</li>
+</ul>
+
+<h3>อัลกอริทึมที่ต้องรู้ค่า</h3>
+<ul>
+<li><strong>Sorting:</strong> merge sort O(n log n) ทุกกรณี + stable + ใช้ memory O(n); quick sort เฉลี่ย O(n log n) แย่สุด O(n²) (pivot ไม่ดี) + in-place; heap sort O(n log n) in-place ไม่ stable</li>
+<li><strong>Binary search</strong> O(log n) ใช้กับ “เรียงแล้ว” — จุดพลาด: เงื่อนไขขอบ (lo &lt;= hi), mid overflow</li>
+<li><strong>Two pointers / sliding window</strong> — ลด O(n²)→O(n) สำหรับ substring/คู่ผลรวม; <strong>hashmap complement</strong> สำหรับ two-sum</li>
+<li>จำสูตรต้นทุนพอ: ทุกคู่ O(n²), ทุกครึ่ง O(log n), เรียง+กวาด O(n log n)</li>
+</ul>
+
+<h3>กระบวนทัศน์ (round 2)</h3>
+<ul>
+<li><strong>OOP 4 เสาหลัก:</strong> Encapsulation (ซ่อน state), Abstraction (เผยเฉพาะจำเป็น), Inheritance (is-a), Polymorphism (interface เดียวหลายรูปแบบ)</li>
+<li><strong>Overload vs Override:</strong> overload = เมธอดชื่อเดียวกัน พารามิเตอร์ต่าง (compile-time); override = คลาสลูกเขียนทับเมธอดแม่ (runtime)</li>
+<li><strong>FP:</strong> pure function (ผลขึ้นกับ input เท่านั้น ไม่มี side effect), immutability, higher-order function, map/filter/reduce; ข้อดี: test ง่าย, parallel ง่าย</li>
+<li>เลือกเครื่องมือ: OOP จัดโครง state, FP จัดการ transform ข้อมูล — ใช้ผสมกันได้ (เป็นคำตอบที่ดีกว่าเลือกข้าง)</li>
+</ul>
+
+<h3>Concurrency</h3>
+<ul>
+<li><strong>Process vs Thread:</strong> process แยกหน่วยความจำ (ปลอดภัยกว่า, คุยกันยาก/แพง), thread ใช้หน่วยความจำร่วม (เร็วในการสื่อสาร, แชร์ state → race condition)</li>
+<li><strong>Async/await</strong> — ไม่ได้แปลว่า parallel; มันคือการรอแบบไม่บล็อก (I/O-bound); งาน CPU-bound ต้องใช้ process/worker จริง</li>
+<li><strong>Race condition</strong> — ผลขึ้นกับจังหวะ; แก้ด้วย lock/mutex, atomic operation, immutable data, หรือ confine ให้ thread เดียวแตะ</li>
+<li><strong>Deadlock เกิดเมื่อ 4 เงื่อนไขครบ (Coffman):</strong> mutual exclusion, hold &amp; wait, no preemption, circular wait — แก้ = ทำลายสักข้อ (เช่น lock ordering, timeout)</li>
+<li><strong>Mutex vs Semaphore:</strong> mutex = ล็อก 1 ที่ (เจ้าของชัดเจน); semaphore = นับจำนวน token ที่ผ่านได้ N ตัว</li>
+</ul>
+
+<h3>หน่วยความจำ &amp; กับดักภาษา</h3>
+<ul>
+<li><strong>Stack:</strong> ตัวแปร local/เรียกฟังก์ชัน เร็ว จำกัด ขนาด (ล้น = stack overflow) · <strong>Heap:</strong> object ทั้งหลาย โตได้ จัดการด้วย GC (หรือ manual)</li>
+<li><strong>Pass by value vs reference:</strong> primitive ส่งค่าคัดลอก; object ส่ง reference — ระวังฟังก์ชันแก้ object ที่ผู้เรียกถืออยู่ (มีผลข้างเคียง)</li>
+<li><strong>Floating point:</strong> 0.1 + 0.2 ≠ 0.3 (binary ไม่แทนทศนิยมได้เป๊ะ) — เรื่องเงินใช้ decimal/integer สตางค์; ห้ามเทียบ == กับ float</li>
+<li><strong>Integer overflow</strong> — ล้นขอบแล้ววนค่ากลับ (เช่น int32 เกิน ~2.1×10⁹); ภาษา modern บางตัว throw</li>
+<li><strong>String immutable</strong> (Java/C#/Python) — ต่อสตริงในลูปด้วยตัวเดิมได้ของใหม่ทุกครั้ง → ใช้ builder/list join</li>
+<li><strong>Null/undefined</strong> — null dereference คือ bug อันดับต้น; ใช้ optional/type system, ตรวจก่อนใช้</li>
+</ul>
+
+<h3>Clean code (ออกข้อสอบเชิงเขียน)</h3>
+<ul>
+<li>ชื่อสื่อนาม – ตัวแปร/ฟังก์ชันบอก “ทำอะไร” · ฟังก์ชันเล็กทำเรื่องเดียว · เลี่ยง nesting ลึก (early return/guard clause)</li>
+<li>Comment อธิบาย <strong>why</strong> ไม่ใช่ <strong>what</strong>; code ที่ดีไม่ต้องมี comment อธิบายตัวมันเอง</li>
+<li>Error handling: ไม่กลืน exception เงียบๆ; fail fast; error message บอก context</li>
+</ul>
+
+</section>
+
+<section class="sec s2" id="s2">
+<h2>2. ต้องจำ</h2>
+<ul>
+<li>Big-O ของ: array access O(1), hash เฉลี่ย O(1), balanced BST O(log n), sorting เปรียบเทียบ O(n log n), binary search O(log n)</li>
+<li>Stack LIFO / Queue FIFO; BFS=queue, DFS=stack</li>
+<li>OOP 4 เสาหลัก; overload(compile) vs override(runtime)</li>
+<li>Deadlock 4 เงื่อนไข (mutual exclusion, hold&amp;wait, no preemption, circular wait)</li>
+<li>0.1+0.2≠0.3 → เงินใช้ decimal; float ห้าม ==</li>
+<li>Async ≠ parallel (I/O vs CPU)</li>
+</ul>
+
+</section>
+
+<section class="sec s3" id="s3">
+<h2>3. กับดักข้อสอบ</h2>
+<ul>
+<li>Quick sort “แย่สุด O(n²) — ตอบให้ครบว่าทำไมดีกว่า merge ในบางบริบท (in-place/constant memory)”</li>
+<li>Hash table “O(1) เสมอ” — ผิด; เสมอคือ “เฉลี่ย”; worst = O(n) เมื่อ collision รุนแรง</li>
+<li>Linked list เปิดช่อง “insert/delete O(1)” ได้ต้องบอกเงื่อนไข “ถ้ามี pointer อยู่ที่ตำแหน่งนั้น”</li>
+<li>Pass by reference กับ “object ถูกส่งด้วย reference” — หลายภาษา (Java/Python) จริงๆ ส่ง “reference by value” — ปรับคำตอบตามภาษาที่สอบ</li>
+<li>Race condition ≠ deadlock — race=ผลผิดเพราะจังหวะ; deadlock=ค้างรอกันวนไป</li>
+</ul>
+
+</section>
+
+<section class="sec s4" id="s4">
+<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<details><summary>Q1: ค้นหาใน hash table และ balanced BST ต่างกันยังไง (เฉลี่ย/แย่สุด)</summary>A: hash เฉลี่ย O(1) แต่แย่สุด O(n) เมื่อ collision; balanced BST O(log n) ทั้งเฉลี่ยและแย่สุด + เป็นระเบียบเรียงได้</details>
+<details><summary>Q2: Merge sort กับ quick sort ต่างกันด้านไหนบ้าง</summary>A: merge = O(n log n) ทุกกรณี, stable, ใช้ memory O(n); quick = เฉลี่ย O(n log n) แย่ O(n²), in-place, ไม่ stable</details>
+<details><summary>Q3: Overload กับ override ต่างกัน</summary>A: overload = ชื่อเดียวกันคนละพารามิเตอร์ ตัดสินตอน compile; override = ลูกเขียนทับพฤติกรรมแม่ ตัดสินตอน runtime</details>
+<details><summary>Q4: Deadlock เกิดได้เมื่อเงื่อนไขอะไรครบ และแก้ง่ายสุดยังไง</summary>A: mutual exclusion + hold and wait + no preemption + circular wait ทั้ง 4 ครบ; แก้ด้วยการทำลายข้อใดข้อหนึ่ง เช่น กำหนดลำดับการ lock (กัน circular wait)</details>
+<details><summary>Q5: Async/await เหมาะกับงานแบบไหน ไม่เหมาะกับแบบไหน</summary>A: เหมาะงาน I/O-bound (รอ network/disk แบบไม่บล็อก); ไม่เหมาะ (ไม่ช่วย) งาน CPU-bound — ต้องใช้ worker/process คู่ขนานจริง</details>
+<details><summary>Q6: ทำไม 0.1+0.2 ไม่เท่ากับ 0.3 และจัดการอย่างไรเมื่อเป็นเงิน</summary>A: floating point แทนทศนิยมฐาน 2 ได้แค่ประมาณ; ใช้ decimal (หรือ integer หน่วยย่อยสุด) กับงานเงิน และไม่เทียบ float ด้วย ==</details>
+<details><summary>Q7: เลือก BFS หรือ DFS เมื่อต้องการ shortest path ในกราฟไม่ถ่วงน้ำหนัก</summary>A: BFS — เพราะสำรวจตามชั้นระยะทาง ถึงก่อน = สั้นสุดในกราฟที่ทุกเส้นทางราคาเท่ากัน</details>
+
+</section>
+
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> ตาราง Big-O 6 แถว · OOP 4 เสาหลัก + overload/override · deadlock 4 เงื่อนไข</div>
+
+<nav>ก่อนหน้า: <a href="05-ai-skills.html">05 · AI Skills</a> · ถัดไป: <a href="07-version-control.html">07 · Version Control</a></nav>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,163 @@
+Question,Answer,Tags
+ACID ย่อจากอะไรบ้าง อธิบายสั้นๆ,Atomicity (ทั้งหมดหรือไม่เลย) / Consistency (valid state) / Isolation (ไม่รบกวนกัน) / Durability (commit แล้วอยู่จริง),db_sql
+Dirty read คืออะไร,อ่านค่าที่ transaction อื่นยังไม่ commit,db_sql
+Non-repeatable read คืออะไร,อ่านแถวเดิมซ้ำได้ค่าเปลี่ยน เพราะมี commit ของผู้อื่นคั่นกลาง,db_sql
+Phantom read คืออะไร,query เดิมได้จำนวนแถวเปลี่ยน เพราะมี INSERT/DELETE commit คั่นกลาง,db_sql
+Isolation level ไหนกัน phantom ได้ (ตามมาตรฐาน SQL),Serializable,db_sql
+SQL logical execution order,FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT,db_sql
+"Composite index (a,b,c) ใช้กับ WHERE b=? ได้ไหม",ไม่ได้ ต้องเริ่มจากคอลัมน์ซ้ายสุด (leftmost prefix rule),db_sql
+RANK vs DENSE_RANK vs ROW_NUMBER (มีค่าเสมอ),"RANK=1,1,3 (ข้าม) / DENSE_RANK=1,1,2 (ไม่ข้าม) / ROW_NUMBER=1,2,3 (ไม่ซ้ำเสมอ)",db_sql
+N+1 query คืออะไร แก้ยังไง,ดึง list 1 ครั้ง + ยิงต่อรายแถว N ครั้ง; แก้ด้วย JOIN / eager load / batch WHERE IN,db_sql
+COUNT(*) vs COUNT(col),COUNT(*) นับทุกแถว; COUNT(col) ข้าม NULL,db_sql
+3NF กับ BCNF นิยาม,3NF: ไม่มี transitive dependency; BCNF: ทุก determinant ต้องเป็น candidate key,db_sql
+DELETE vs TRUNCATE,DELETE มี WHERE ได้ มี log รายแถว; TRUNCATE ลบทั้งตาราง เร็วกว่า เป็น DDL,db_sql
+SOLID ย่อจากอะไร,"Single responsibility, Open/closed, Liskov substitution, Interface segregation, Dependency inversion",design
+SRP นิยาม,คลาสมีเหตุผลเดียวที่จะต้องถูกแก้ (one reason to change),design
+Dependency Inversion หมายถึง,พึ่ง abstraction ไม่พึ่ง implementation concrete (high-level ไม่รู้จัก low-level),design
+Coupling กับ cohesion ที่ดีคือ,"Coupling ต่ำ, cohesion สูง",design
+Pattern: สลับ algorithm ตอน runtime,Strategy,design
+Pattern: แจ้งผู้ฟังหลายฝ่ายอัตโนมัติเมื่อเกิดเหตุการณ์,Observer,design
+Pattern: เพิ่มความสามารถโดยห่อซ้อนได้,Decorator,design
+Pattern: แปลง interface ที่ไม่เข้ากันให้ทำงานด้วยกัน,Adapter,design
+Pattern: สร้าง object โดยซ่อน concrete class,Factory Method,design
+Clean Architecture dependency rule,dependency พุ่งเข้าหาแกนกลางเสมอ — ชั้นในไม่รู้จัก framework/DB/UI,design
+Entity กับ Value Object ต่างกันยังไง,Entity มี identity (id เดิม=ตัวเดิม); Value Object เท่ากันที่ค่า เปลี่ยนค่า=คนละvalue,design
+Semver 3 ตัวบอกอะไร,"MAJOR=breaking change, MINOR=ฟีเจอร์ใหม่ compatible, PATCH=แก้บั๊ก",design
+ลิงก์กับข้อสอบ: Open/Closed ไม่ได้แปลว่า,ไม่ได้แปลว่าห้ามแก้โค้ดเลย — แปลว่าเพิ่มฟีเจอร์ด้วยการเพิ่มโค้ดมากกว่าไปรื้อ logic เดิม,design
+CIA triad คือ,"Confidentiality, Integrity, Availability",security
+OWASP A01 (2021) คือ,Broken Access Control,security
+OWASP A03 (2021) คือ,Injection,security
+OWASP A10 (2021) คือ,SSRF (Server-Side Request Forgery),security
+AuthN กับ AuthZ ต่างกัน,AuthN=你是谁 (ยืนยันตัวตน); AuthZ=ทำอะไรได้ (สิทธิ์),security
+เก็บรหัสผ่านที่ถูกต้องทำยังไง,Hash ด้วย bcrypt/scrypt/Argon2 + per-user salt; ห้าม plaintext/MD5/SHA เดี่ยว,security
+JWT ประกอบด้วยอะไร,header.payload.signature — payload แค่ Base64 อ่านได้ ห้ามใส่ความลับ,security
+SQL Injection แก้ที่ไหน,Parameterized query / prepared statement (ไม่ใช่ต่อสตริงแล้ว escape),security
+XSS แก้ยังไง,Output encoding ตาม context + CSP + HttpOnly cookie,security
+CSRF แก้ยังไง,CSRF token + SameSite cookie + ตรวจ Origin,security
+OAuth2 flow ที่ควรใช้กับ web/mobile,Authorization Code + PKCE; Implicit ถูกยกเลิกแล้ว,security
+STRIDE 6 ตัว,"Spoofing, Tampering, Repudiation, Information disclosure, DoS, Elevation of privilege",security
+IDOR คืออะไร,เปลี่ยน id ใน request แล้วเข้าถึงข้อมูลคนอื่นได้ (Broken Access Control) — แก้: เช็ค ownership ทุก object,security
+Shift left หมายถึง,ย้ายงานคุณภาพ/ความปลอดภัยไปทำตั้งแต่ design/code แรก — แก้ถูกกว่าและก่อนถึง prod,security
+Context engineering คืออะไร,"ออกแบบทุกอย่างที่อยู่ใน context window (system, history, retrieved, tools, examples) ให้พอดีกับงานและ budget",ai_context
+Lost-in-the-middle คือ,โมเดลให้ความสำคัญ token ต้น/ท้ายดีกว่ากลาง → วางข้อมูลสำคัญไว้หัว-ท้าย context,ai_context
+RAG pipeline เรียงเป็นขั้น,chunk → embed → store (vector DB) → retrieve top-k → (rerank) → generate,ai_context
+RAG vs Fine-tune,RAG ให้ความรู้/ข้อมูล (อ้างอิงได้); fine-tune ปรับพฤติกรรม/รูปแบบ/สไตล์,ai_context
+ลำดับตัดสินใจ prompt/RAG/fine-tune,ลอง prompt ก่อน → ไม่พอความรู้ = RAG → ไม่พอพฤติกรรม = fine-tune,ai_context
+Compaction คืออะไร,สรุป/บีบอัดประวัติให้สั้นลงเมื่อ context ยาวขึ้น เพื่อคงคุณภาพและประหยัด budget,ai_context
+3 วิธีคุม context เมื่องานยาว,"compaction/summarize, external memory (เขียนไฟล์/DB แล้วอ่านคืน), subagent แยก context",ai_context
+Prompt injection จาก retrieved document กันยังไง,ถือเป็น untrusted: delimiter + ห้ามทำตามคำสั่งในเอกสาร + validate/approve action,ai_context
+Few-shot คืออะไร,ใส่ตัวอย่าง input→output ที่ถูกต้อง 2-5 ตัวใน prompt — ตัวอย่างดีกว่าคำอธิบาย,ai_context
+Context rot คือ,เมื่อ context ยาวขึ้น ข้อมูลสำคัญเจือจาง คุณภาพการใช้ข้อมูลลดลง,ai_context
+Chunk size ใน RAG trade-off ยังไง,เล็ก=แม่นตำแหน่งแต่ขาดบริบท; ใหญ่=มีบริบทแต่เสียงรบกวน — ใช้ overlap กันรอยต่อ,ai_context
+Skill คืออะไร (นิยามสั้น),แพ็คเกจวิธีทำงาน (procedural knowledge) ให้ agent โหลดใช้เมื่อเข้าเงื่อนไข — ใช้ซ้ำข้าม session,ai_skills
+Progressive disclosure ของ skill มี 3 ชั้นอะไร,1) name+description → 2) เนื้อ SKILL.md → 3) ไฟล์ประกอบ (references/scripts/assets) เฉพาะที่ต้องใช้,ai_skills
+ไฟล์แกนของ skill คืออะไร มีอะไรข้างใน,"SKILL.md — frontmatter (name, description) + body ขั้นตอน/กฎ + โฟลเดอร์ references/scripts/assets",ai_skills
+ทำไม description ของ skill สำคัญสุด,เป็นข้อความเดียวที่ agent เห็นตอนตัดสินใจโหลด — ต้องมี trigger ชัด (use when...),ai_skills
+Skill กับ memory ต่างกันยังไง,memory = ข้อเท็จจริงที่โหลดทุก session; skill = ขั้นตอนที่โหลดเฉพาะเมื่องานเข้าเงื่อนไข,ai_skills
+Skill กับ tool ต่างกันยังไง,skill = วิธีทำงาน/ขั้นตอน; tool = ความสามารถลงมือทำ (เรียก API/รันโค้ด) — skill อาจบอกให้ใช้ tool ใด,ai_skills
+หลักเขียน skill ที่ดี,"กฎ + เหตุผล (why), หนึ่งบทเรียนหนึ่งกฎ, ไม่ใส่ประวัติ/วันที่/เลข PR, รายละเอียดยาวไป references",ai_skills
+เจอ skill ที่ใช้อยู่ผิดพลาดกลางงาน ควรทำอะไร,patch skill ทันที (แก้ขั้นตอน/เพิ่ม pitfall) — ให้บทเรียนอยู่กับ skill ไม่ใช่จำชั่วคราว,ai_skills
+เมื่อไรควรสร้าง skill ใหม่,เมื่องานนั้นทำซ้ำและมีวิธีที่พิสูจน์แล้ว (procedure + pitfall ที่เจอจริง),ai_skills
+Skill ถูกโหลดตอนไหน,เมื่อ description ตรงกับงานปัจจุบัน — ไม่ใช่โหลดอัตโนมัติทุกครั้ง (ประหยัด context),ai_skills
+Big-O: array access / hash เฉลี่ย / balanced BST / binary search,O(1) / O(1) / O(log n) / O(log n),programming
+Merge sort vs Quick sort (แย่สุด),Merge: O(n log n) ทุกกรณี stable ใช้ memory O(n); Quick: เฉลี่ย O(n log n) แย่สุด O(n²) in-place,programming
+Hash table worst case คือ,O(n) เมื่อ collision รุนแรง (เฉลี่ย O(1)),programming
+OOP 4 เสาหลัก,"Encapsulation, Abstraction, Inheritance, Polymorphism",programming
+Overload กับ Override ต่างกัน,Overload=ชื่อเดียวกันคนละพารามิเตอร์ (compile-time); Override=เขียนทับเมธอดแม่ (runtime),programming
+Deadlock เกิดเมื่อ 4 เงื่อนไขครบอะไรบ้าง,"Mutual exclusion, Hold & wait, No preemption, Circular wait — แก้ด้วยทำลายสักข้อ (เช่น lock ordering)",programming
+Async/await เหมาะกับงานแบบไหน,I/O-bound (รอแบบไม่บล็อก); งาน CPU-bound ต้องใช้ worker/process คู่ขนานจริง,programming
+ทำไม 0.1+0.2 ≠ 0.3,Floating point ฐาน 2 แทนทศนิยมฐานสิบได้แค่ประมาณ — เงินใช้ decimal/integer สตางค์,programming
+Stack vs Heap,Stack: local/เรียกฟังก์ชัน เร็ว จำกัด; Heap: object โตได้ GC จัดการ (ล้น stack = stack overflow),programming
+BFS หา shortest path ได้กับกราฟแบบไหน ใช้ structure อะไร,กราฟไม่ถ่วงน้ำหนัก; ใช้ Queue (DFS ใช้ stack/recursion หา cycle/เส้นทาง),programming
+Mutable กับ Immutable ต่างกันด้านไหน,"Immutable ปลอดภัยต่อ concurrency, คาดเดาง่าย, ใช้เป็น key ได้; แลกด้วยการคัดลอกเวลาจะแก้",programming
+Fixed: ภาษา Java/Python ส่ง object แบบไหน,ส่ง reference by value — ฟังก์ชันแก้ object ที่ผู้เรียกถือได้ (ผลข้างเคียง),programming
+Git มี 3 พื้นที่อะไร,Working directory → Staging (index) → Repository (commits/HEAD),git
+HEAD คืออะไร,pointer ไปยัง commit/branch ปัจจุบัน,git
+reset กับ revert ต่างกัน ใช้เมื่อไร,reset=ย้าย pointer/เขียนประวัติ (งาน local เท่านั้น); revert=สร้าง commit กลับด้าน (shared ปลอดภัย),git
+กู้ commit ที่ reset --hard หายไปได้ยังไง,git reflog → ดูตำแหน่ง HEAD เก่า → checkout/reset กลับ (ถ้า GC ยังไม่เก็บ),git
+pull = อะไร,fetch + merge (หรือ rebase ตาม config),git
+ห้ามทำอะไรกับ commit ที่ push/แชร์แล้ว,ห้าม rebase (รวม amend/reset เขียนประวัติ) — hash เปลี่ยน ทำคนอื่นพัง,git
+Fast-forward merge คือ,branch ปลายทางไม่มี commit ใหม่ — แค่เลื่อน pointer ไม่สร้าง merge commit,git
+Merge commit เกิดเมื่อไร,เมื่อสอง branch diverge (three-way merge) — มี parents 2 ตัว,git
+git restore กับ restore --staged ต่างกัน,restore=ทิ้งการแก้ใน working dir; --staged=แค่เอาออกจาก staging (ไฟล์ไม่หาย),git
+PR flow มาตรฐาน,feature branch → PR (+issue link) → review → CI เขียว → merge,git
+Git เก็บอะไรต่อ commit,snapshot ของทั้ง tree (ไม่ใช่ diff เป็นหน่วยหลัก — diff ใช้ตอนแสดงผล/บีบอัด),git
+CI คืออะไร,merge บ่อย + build/test อัตโนมัติทุก push/PR เพื่อจับ integration bug เร็วสุด,cicd
+Continuous Delivery vs Deployment,Delivery=พร้อม deploy เสมอ แต่คนกด; Deployment=อัตโนมัติถึง prod ทุก commit ที่ผ่าน gate,cicd
+Pipeline stages มาตรฐานเรียง,checkout → install/build → unit test → scan (SAST/SCA/secret) → package artifact → deploy → smoke test,cicd
+"Build once, deploy everywhere หมายถึง",ใช้ artifact เดียวกันทุก env — ต่างแค่ config/secrets (ไม่ build ใหม่ต่อ env),cicd
+Canary กับ Blue-Green ต่างกัน,Canary=ปล่อย traffic บาง % ไปเวอร์ชันใหม่แล้วค่อยขยาย; Blue-Green=สอง env เต็มสลับ traffic ทั้งหมด,cicd
+Rolling update คือ,ทยอยแทน instance ทีละชุด — ไม่มี downtime แต่ช่วงเปลี่ยนมีสองเวอร์ชัน,cicd
+Feature flag แยกอะไรออกจากอะไร,แยก release (เปิดฟีเจอร์) ออกจาก deploy (ขึ้นโค้ด) — ไม่ต้อง deploy เพื่อเปิด/ปิด,cicd
+DORA 4 metrics,"Deployment frequency, Lead time for changes, Change failure rate, MTTR",cicd
+พังกลาง prod ทางเลือกมีอะไร,Rollback ไป artifact เก่า หรือ fix-forward (hotfix) — ต้องมี rollback plan + migration backward-compatible,cicd
+ทำไม migration ต้อง backward-compatible,เพื่อให้สองเวอร์ชันโค้ดอยู่ร่วมช่วง rollout/rollback ได้ (expand→migrate→contract),cicd
+Secrets ใน CI ควรจัดการยังไง,"เก็บใน CI secret store/Vault, inject ตอนรัน, mask ใน log, ห้าม echo",cicd
+Test pyramid เรียงเยอะ→น้อย,unit → integration → e2e,qe
+ทำไม unit ต้องเยอะสุด,เร็ว ถูก isolate — feedback ไว รันทุก CI; e2e ช้า flaky แพง เก็บแค่ critical path,qe
+TDD 3 ขั้น,RED (เขียนเทสต์พังก่อน) → GREEN (โค้ดน้อยสุดให้ผ่าน) → REFACTOR (เทสต์ยังเขียว),qe
+BDD ใช้ format อะไร,Given (สถานะตั้งต้น) / When (การกระทำ) / Then (ผลที่คาดหวัง),qe
+Stub ต่างจาก Mock,Stub=ให้ค่าที่เตรียมไว้; Mock=ตั้ง expectation แล้ว verify ว่าถูกเรียกแบบนั้นจริง,qe
+Fake ใน test double คือ,Implementation จริงแบบเบา เช่น in-memory DB / fake SMTP,qe
+Coverage บอกอะไร ไม่บอกอะไร,บอกว่าโค้ดถูกแตะในเทสต์; ไม่ได้บอกว่าถูกต้อง (assertion อาจอ่อน) — ใช้หา blind spot,qe
+QA กับ QC ต่างกัน,QA=กระบวนการป้องกันคุณภาพตั้งแต่ต้น (process); QC=ตรวจผลิตภัณฑ์ (detection) — testing อยู่ใน QC,qe
+Flaky test แก้ยังไง,"ทำให้ deterministic: fake time/seed, isolate data ต่อ test, ไม่พึ่งลำดับ/shared state/network จริง — fix ทันทีไม่ rerun หนี",qe
+Contract testing จับอะไร,Breaking change ของสัญญา API ระหว่าง service ผู้ให้–ผู้ใช้ ก่อนไปพังที่ integration จริง,qe
+Smoke test คือ,ชุดสั้นๆ ยืนยันระบบ 'มีชีวิต' หลัง deploy,qe
+Container ต่างจาก VM อย่างไร,Container แชร์ kernel โฮสต์ ใช้ namespaces+cgroups กัก process (เบา เร็ว); VM มี kernel ตัวเอง (หนัก แยกขาดกว่า),docker
+Image กับ Container ต่างกัน,Image=template read-only เป็น layers; Container=instance ที่รัน + writable layer (หายเมื่อลบ),docker
+จัด Dockerfile ยังไงให้ cache ไม่พัง,คำสั่งเปลี่ยนน้อยบนสุด (base/deps manifest) เปลี่ยนบ่อยล่างสุด (COPY source) — แก้โค้ดไม่ต้อง install ใหม่,docker
+Multi-stage build ทำไม,final image เล็ก/ปลอดภัย — ไม่พก toolchain และ dev dependency ของขั้น build,docker
+ข้อมูลใน container หายเมื่อไร เก็บยังไง,หายเมื่อลบ container (writable layer); เก็บด้วย volume/bind mount หรือดัน state ไป DB/object storage,docker
+ENTRYPOINT vs CMD,ENTRYPOINT=คำสั่งหลักตายตัว; CMD=default ที่ override ได้ — ใช้คู่กัน CMD เป็น default args; ใช้ exec form,docker
+EXPOSE ทำอะไรจริงไหม,แค่ metadata/เอกสาร — ไม่ publish จริง; publish ด้วย -p host:container,docker
+ทำไมไม่ใช้ :latest ใน production,ไม่ reproducible — pull ได้ของใหม่ไม่รู้ตัว rollback ไม่ได้ ใช้ version tag/digest,docker
+docker exec ใช้ทำอะไร,เข้าไปรันคำสั่ง/เชลล์ใน container ที่กำลังรันอยู่,docker
+Docker Compose ใช้ทำอะไร,"นิยามและรัน multi-service stack (dev/local): services, ports, volumes, environment, depends_on",docker
+K8s: Pod / Deployment / Service,Pod=หน่วยรันเล็กสุด (1+ container); Deployment=คุม replicas+rolling update; Service=DNS/LB หน้า Pod,docker
+ENTRYPOINT/CMD ต้องใช้ exec form เพราะ,ให้ process เป็น PID 1 รับ signal ถูกต้อง ไม่มี shell ตัวกลางค้าง (zombie),docker
+Agentic coding loop 6 ขั้น,Understand → Plan/spec → Implement (diff เล็ก) → Verify → Review → Commit,ai_coding
+'ยังไม่รัน = ยังไม่เสร็จ' หมายถึง,หลักฐานเดียวที่เชื่อได้คือ test/build/runtime จริงผ่าน — คำอธิบายของ AI ไม่ใช่หลักฐาน,ai_coding
+Spec-driven development ช่วยอะไร,"spec + acceptance criteria ก่อนลงมือ → ตรวจได้ทั้งก่อน/หลังสร้าง, ลดการตีความ, แยกงานเป็นชิ้นเล็ก",ai_coding
+Rules file (AGENTS.md/CLAUDE.md) เก็บอะไร,"คำสั่ง build/test, convention, สิ่งที่ห้าม ของโปรเจกต์ — ลดอธิบายซ้ำทุก session",ai_coding
+ความเสี่ยง hallucinated package,AI แนะนำ lib/ฟังก์ชันที่ไม่มีจริง หรือชื่อ package ปลอมใน registry (supply chain) — ตรวจเอกสารจริง + pin version,ai_coding
+Prompt injection ใน coding agent มาจากไหน,ไฟล์ใน repo/comments/หน้าเว็บที่ agent อ่าน มีคำสั่งซ่อน — ให้สิทธิ์น้อยที่สุด + ตรวจ action อันตราย,ai_coding
+ทำไม 'AI แก้ test ให้ผ่าน' น่ากังวล,มันรักษาความเขียวโดยลดความหมายของ test แทนแก้โค้ดจริง — review test diff เข้มเท่าโค้ด production,ai_coding
+ก่อนแก้ bug ควรทำอะไรเป็นอย่างแรก,เขียน regression test ที่พัง (พิสูจน์จับ bug ได้) → แก้ → เขียว + suite เดิมไม่พัง,ai_coding
+Context session ยาวจนแย่ ควรทำอะไร,สรุปงานค้าง/การตัดสินใจเป็น handoff/spec แล้วเริ่ม session ใหม่ (อย่าฝืนต่อ),ai_coding
+วัดผล AI coding workflow ยังไง,eval ชุดงานจริง+เกณฑ์ผ่าน; ติดตาม cycle time/change failure rate ไม่ใช่ความรู้สึก 'เร็วขึ้น',ai_coding
+Agent = 3 องค์ประกอบอะไร,LLM (สมอง) + Tools (มือ) + Loop (ตัดสินใจวนจากผลจริงจนจบงาน),ai_agents
+ReAct คืออะไร,Reason + Act สลับกัน: คิด → เรียก tool → อ่านผล → คิดใหม่ จนจบงาน,ai_agents
+ใครรัน tool จริงตอน function calling,harness (โค้ดฝั่งเรา) — โมเดลแค่ emit ชื่อ+args JSON; เราตรวจ validate แล้วรันจริง ป้อนผลกลับ,ai_agents
+Harness มีองค์ประกอบอะไรบ้าง,"system prompt/กติกา, tools+schema, loop control (max steps), context mgmt, permissions/sandbox, subagents, memory, observability, cost control",ai_agents
+MCP แก้ปัญหาอะไร,มาตรฐานเชื่อม tool/data: เขียน server ครั้งเดียวใช้หลาย client (M×N → M+N) + คุมสิทธิ์ที่ server,ai_agents
+Prompt injection คืออะไร กันยังไง,"คำสั่งซ่อนในเนื้อหา untrusted (เว็บ/ไฟล์/tool output) — กันด้วย delim, least privilege, validate/approve action, sandbox",ai_agents
+Failure mode: agent วนลูป แก้ยังไง,max steps + บังคับเปลี่ยนวิธี + escalate หาคน,ai_agents
+Failure mode: context overflow แก้ยังไง,compaction/memory/subagent แยก context,ai_agents
+Self-report ของ agent ต้องทำยังไง,Verify ปลายทางจริง (artifact/ไฟล์/URL/DB state) — self-report ไม่ใช่หลักฐาน,ai_agents
+Human-in-the-loop ใช้เมื่อไร,Action อันตราย/แตะเงิน/ลบ/ส่งออกภายนอก — ต้องมีคนอนุมัติก่อนรัน,ai_agents
+Subagent ข้อดีหลัก,Context แยก — งานสำรวจกิน token เยอะถูกทำที่ subagent ส่งกลับแค่สรุป + ทำงานขนานได้,ai_agents
+SDLC 6 เฟส,Requirements → Design → Implementation → Testing → Deployment → Maintenance (วนซ้ำได้),sw_dev
+Agile Manifesto 4 คุณค่า,"คน>กระบวนการ, ซอฟต์แวร์ทำงาน>เอกสารครบ, ร่วมมือลูกค้า>เจรจาสัญญา, ตอบการเปลี่ยนแปลง>ทำตามแผน",sw_dev
+Scrum roles 3,"Product Owner, Scrum Master, Developers",sw_dev
+Scrum artifacts 3,"Product Backlog, Sprint Backlog, Increment",sw_dev
+Scrum events 5,"Sprint, Sprint Planning, Daily Scrum, Sprint Review, Retrospective",sw_dev
+Kanban เน้นอะไร,WIP limit + flow (lead/cycle time) — ไม่มี sprint timebox; เหมาะงานไหลต่อเนื่อง,sw_dev
+Functional vs Non-functional requirement,"Functional=ระบบทำอะไร (รีเซ็ตรหัสได้); Non-functional=คุณภาพ (p95 200ms, concurrent, security)",sw_dev
+User story format,As a <role> I want <capability> so that <value> + acceptance criteria (Given/When/Then),sw_dev
+Story points คืออะไร,ขนาด/ความซับซ้อนแบบสัมพัทธ์ (fibonacci) ไม่ใช่ชั่วโมง — ไม่เทียบข้ามทีม,sw_dev
+Sprint Review vs Retrospective,Review=โชว์ increment กับ stakeholder; Retro=ทบทวนกระบวนการภายในทีมและปรับปรุง,sw_dev
+Tech debt คืออะไร บริหารยังไง,ทางลัดที่สร้าง 'ดอกเบี้ย' (แก้ช้าลงเรื่อยๆ) — log เป็น backlog item จ่ายคืนเป็นระยะ,sw_dev
+Waterfall เหมาะกับงานแบบไหน,ข้อกำหนดนิ่ง/สัญญาชัด เอกสารครบ; ข้อเสีย: เปลี่ยนยาก เห็นผลช้า,sw_dev
+LLM ทำอะไรเป็นแกน,ทำนาย token ถัดไป (next-token prediction) บนสถาปัตยกรรม Transformer + attention,ai_llm
+3 ขั้นตอนการฝึก LLM,Pretraining → SFT (instruction tuning) → RLHF/alignment (preference),ai_llm
+Temperature สูง/ต่ำ ให้ผลต่างกัน,สูง=สุ่ม/สร้างสรรค์; ต่ำ/0=นิ่ง ใกล้ deterministic — งาน fact/โค้ด/สกัดข้อมูลใช้ต่ำ,ai_llm
+Top-p ทำงานยังไง,ตัด pool เฉพาะ token ที่ความน่าจะเป็นสะสมถึง p แล้วสุ่มภายใน (คุมหางการแจกแจง),ai_llm
+Context window คืออะไร,"เพดาน token (input+output) ที่โมเดลเห็นต่อการเรียกครั้งเดียว — ยาว=แพง+ช้า, ราคาคิดต่อ token",ai_llm
+Embedding คืออะไร ใช้ทำอะไร,Vector ความหมายของข้อความ (ใกล้=คล้าย) — ใช้ semantic search/RAG/จัดกลุ่ม,ai_llm
+Hallucination เกิดจากอะไร,โมเดลเลียนแบบรูปแบบสถิติ ไม่มีฐานข้อเท็จจริงในตัว — ลดได้แต่ไม่ elimination 100%,ai_llm
+RAG vs Fine-tune (เชิง LLM),RAG=ป้อนความรู้ผ่าน context (สด/อ้างอิงได้); fine-tune=ปรับพฤติกรรม/สไตล์ด้วยการเทรนต่อ,ai_llm
+Quantization คืออะไร,ลดความละเอียด bits ของน้ำหนัก (เช่น fp16→4-bit) → เล็กลง เร็วขึ้น ถูกลง แลกความแม่นเล็กน้อย,ai_llm
+Benchmark กับ eval ของเราเอง ต่างกัน,Benchmark=สาธารณะเทียบตลาด (อาจ contamination); eval เอง=ชุดงานจริง+เกณฑ์เรา ใช้ตัดสิน deploy,ai_llm
+RLHF ทำอะไร,ปรับให้โมเดลเลือกคำตอบที่คนพอใจ/ปลอดภัย หลัง SFT — ไม่ได้เพิ่มความรู้ใหม่,ai_llm
+เลือกโมเดลเล็ก vs ใหญ่ ตัดสินจาก,"ความซับซ้อนงาน (reasoning ต้องใหญ่), งบ/latency, privacy (บนเครื่อง vs cloud)",ai_llm

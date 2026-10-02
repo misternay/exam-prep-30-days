@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · Version Control</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="sheet t07">
+<main>
+
+<div class="topbar">
+<a class="brand" href="../index.html">← แผน 30 วัน</a>
+<nav class="jump">
+<a href="#s1">เข้าใจ</a><a href="#s2">ต้องจำ</a><a href="#s3">กับดัก</a><a href="#s4">Self-check</a>
+</nav>
+</div>
+<header class="hero">
+<h1><span class="num">07</span> · Version Control (Git)</h1>
+<p class="source">อ่าน ~35 นาที · อ้างอิงหลัก: Pro Git book (git-scm.com/book) โดยเฉพาะบท 2–3, 7</p>
+</header>
+
+<section class="sec s1" id="s1">
+<h2>1. ต้องเข้าใจ</h2>
+
+<h3>โมเดลของ Git</h3>
+<ul>
+<li>Git เก็บ <strong>snapshot ของทั้งโปรเจกต์</strong> ต่อ commit (ไม่ใช่ diff เป็นหน่วยหลัก) + ทุก commit อ้างถึง commit แม่ → เป็น DAG</li>
+<li>มี <strong>3 พื้นที่</strong>: Working Directory (ไฟล์ที่แก้) → Staging Area / Index (สิ่งที่เลือกจะ commit) → Repository (commits, HEAD ชี้อยู่)</li>
+<li><strong>HEAD</strong> = pointer ไปยัง commit/branch ปัจจุบัน; <strong>branch</strong> = pointer เบาๆ ที่ย้ายตาม commit ใหม่</li>
+<li><strong>Remote</strong> = repo อีกชุด (origin มักเป็นตัวกลาง); Git ทำงาน offline ได้เกือบทั้งหมดก่อน push</li>
+</ul>
+
+<h3>Workflow พื้นฐาน</h3>
+<pre>git status            # ดูสถานะ 3 พื้นที่
+git add &lt;file&gt;        # ย้ายเข้า staging (. เลือกทั้งหมด)
+git commit -m "..."   # บันทึก snapshot (เฉพาะที่ stage)
+git log --oneline --graph   # ดูประวัติ
+git push / git pull   # sync กับ remote (pull = fetch + merge)</pre>
+
+<h3>Branch &amp; merge</h3>
+<ul>
+<li><code>git switch -c feature/x</code> สร้าง+ย้าย branch; merge กลับเข้า main ได้จาก PR</li>
+<li><strong>Fast-forward merge</strong> — main ไม่มี commit ใหม่ → แค่เลื่อน pointer</li>
+<li><strong>Three-way merge</strong> — สองฝั่ง diverge → สร้าง merge commit (มี 2 parents); ถ้าชนบรรทัดเดียวกัน = <strong>conflict</strong> ต้องแก้มือ</li>
+<li><strong>Merge vs Rebase:</strong> merge เก็บประวัติจริง (มี merge commit) ปลอดภัยกับ shared branch; rebase เขียน commit ใหม่ให้เป็นเส้นตรง สวยกว่า แต่ <strong>ห้าม rebase commit ที่ push ไปแล้ว/คนอื่นดึงไปใช้</strong> (history diverges)</li>
+<li>Conflict แก้: เปิดไฟล์ → เลือก/รวมโค้ด → <code>git add</code> → <code>git merge --continue</code> (rebase ใช้ <code>--continue</code> เช่นกัน; <code>--abort</code> ถอยกลับ)</li>
+<li>ใน rebase ความหมาย ours/theirs สลับกับที่คาด (ours = ฝั่งที่ rebase ไปวาง = upstream) — กับดักสนามจริง</li>
+</ul>
+
+<h3>ยกเลิก/กู้คืน — แยกให้ออก</h3>
+<table>
+<thead><tr><th>คำสั่ง</th><th>ทำอะไร</th><th>ใช้เมื่อ</th></tr></thead>
+<tbody>
+<tr><td><code>git restore &lt;file&gt;</code></td><td>ทิ้งการแก้ใน working dir (กลับเป็นเวอร์ชัน commit)</td><td>แก้เล่นแล้วไม่เอา</td></tr>
+<tr><td><code>git restore --staged &lt;file&gt;</code></td><td>เอาออกจาก staging (ไฟล์ไม่หาย)</td><td>add ผิด</td></tr>
+<tr><td><code>git commit --amend</code></td><td>แก้ commit ล่าสุด (message/ไฟล์) — เขียน hash ใหม่</td><td>ลืมไฟล์/พิมพ์ผิด (ยังไม่ push)</td></tr>
+<tr><td><code>git reset --soft</code></td><td>ย้าย branch pointer กลับ, เก็บ staged</td><td>รวม commit</td></tr>
+<tr><td><code>git reset --mixed</code> (default)</td><td>ย้าย pointer + unstage</td><td>แยก commit ใหม่</td></tr>
+<tr><td><code>git reset --hard</code></td><td>ย้าย pointer + ทิ้งการแก้ทั้งหมด</td><td>ระวัง! ข้อมูลหาย</td></tr>
+<tr><td><code>git revert &lt;sha&gt;</code></td><td>สร้าง commit ใหม่ที่ “กลับด้าน” ของ commit นั้น</td><td>undo บน shared branch (ปลอดภัย)</td></tr>
+<tr><td><code>git stash</code> / <code>stash pop</code></td><td>พักงานที่แก้ไว้ชั่วคราว</td><td>ต้องสลับงานกลางคัน</td></tr>
+<tr><td><code>git reflog</code></td><td>ประวัติการย้าย HEAD ทุกครั้ง</td><td>กู้ commit/branch ที่ reset หาย</td></tr>
+</tbody>
+</table>
+
+<h3>คำสั่งประกอบอื่นๆ</h3>
+<ul>
+<li><code>git cherry-pick &lt;sha&gt;</code> — ยก commit เดียวจากที่อื่นมาแปะบน branch ปัจจุบัน</li>
+<li><code>git fetch</code> vs <code>git pull</code> — fetch ดึงของใหม่มาไม่แตะ branch เรา; pull = fetch + merge (หรือ rebase ตาม config)</li>
+<li><code>git tag v1.0.0</code> (annotated = <code>-a</code>) — tag release; <code>git diff</code>, <code>git blame</code>, <code>git bisect</code> (binary search หา commit ที่ทำพัง)</li>
+<li><code>.gitignore</code> — กันไฟล์ build/secret ไม่ให้เข้า repo; ไฟล์ที่เคย track ต้อง <code>git rm --cached</code> ก่อน</li>
+<li><strong>Detached HEAD</strong> — checkout ไปที่ commit ตรงๆ (ไม่ใช่ branch) → commit ใหม่จะลอย; แก้โดยสร้าง branch ณ จุดนั้นถ้าต้องการเก็บ</li>
+</ul>
+
+<h3>Branching strategy &amp; team practice</h3>
+<ul>
+<li><strong>Trunk-based</strong> — merge เข้า main บ่อยๆ (branch อายุสั้น) + feature flag → CI/CD ราบรื่น</li>
+<li><strong>GitFlow</strong> — มี develop/release/hotfix หลายสายสำหรับ release รอบยาว — หนัก ใช้เมื่อจำเป็นจริง</li>
+<li><strong>Pull Request flow:</strong> feature branch → PR (คำอธิบาย + linked issue) → review → CI เขียว → merge; ห้าม commit ตรงเข้า main ที่ protect ไว้</li>
+<li><strong>Commit hygiene:</strong> atomic (หนึ่งเรื่องต่อ commit), message บอก “ทำไม/ทำอะไร” (imperative เช่น “add rate limit to login”), อย่า commit ของครึ่งๆกลางๆ หรือ secret</li>
+</ul>
+
+</section>
+
+<section class="sec s2" id="s2">
+<h2>2. ต้องจำ</h2>
+<ul>
+<li>3 พื้นที่: working dir → staging → repo; HEAD/branch = pointer</li>
+<li><strong>reset vs revert:</strong> reset = เขียนประวัติทิ้ง/ย้าย pointer (local); revert = สร้าง commit กลับด้าน (shared ปลอดภัย)</li>
+<li><strong>ห้าม rebase ของที่ push แล้ว</strong> — กฎเหล็ก</li>
+<li><strong>pull = fetch + merge</strong></li>
+<li>กู้หาย: <strong>reflog</strong></li>
+<li>branch อายุสั้น + merge บ่อย = trunk-based CI/CD friendly</li>
+</ul>
+
+</section>
+
+<section class="sec s3" id="s3">
+<h2>3. กับดักข้อสอบ</h2>
+<ul>
+<li>ถาม “undo commit ที่ push ไปแล้วบน main” → ตอบ <strong>revert</strong> ไม่ใช่ reset --hard</li>
+<li><code>reset --hard</code> ไม่ได้ “ผิดเสมอ” — ผิดเฉพาะบน shared/commit ที่ push (เขียนประวัติให้คนอื่นพัง)</li>
+<li>merge ไม่ได้สร้าง commit เสมอไป (fast-forward) — ข้อสอบชอบถาม</li>
+<li>“Git เก็บ diff ต่อ commit” — ไม่ตรงหลัก: เก็บ snapshot (บีบอัดเป็น delta ให้จัดเก็บเท่านั้น)</li>
+<li>Conflict ไม่ใช่ error — เป็นสถานะปกติของ merge ที่ Git ให้คนตัดสิน</li>
+</ul>
+
+</section>
+
+<section class="sec s4" id="s4">
+<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<details><summary>Q1: อธิบาย 3 พื้นที่ของ Git</summary>A: Working directory (แก้ไฟล์อยู่), Staging/index (เลือกไว้จะ commit), Repository (commits + history) — git add ย้าย 1→2, git commit ย้าย 2→3</details>
+<details><summary>Q2: reset กับ revert ต่างกันเมื่อไรใช้อะไร</summary>A: reset ย้าย branch pointer/เขียนประวัติ — ใช้กับงาน local ที่ยังไม่แชร์; revert สร้าง commit ใหม่กลับด้านของ commit เป้าหมาย — ใช้กับ branch ที่ push/แชร์แล้ว</details>
+<details><summary>Q3: ทำไมห้าม rebase commit ที่ push แล้ว</summary>A: rebase เขียน commit เป็นชุดใหม่ (hash เปลี่ยน) → สำเนาประวัติสองแบบชนกัน คนอื่นที่ดึงไปแล้วต้องแก้ chaos</details>
+<details><summary>Q4: กู้ commit ที่ reset --hard หายไป ยังไง</summary>A: git reflog ดูตำแหน่ง HEAD เก่า → checkout/branch/reset กลับที่ commit นั้น (ถ้า GC ยังไม่เก็บ)</details>
+<details><summary>Q5: Fast-forward merge คืออะไร</summary>A: merge ที่ branch ปลายทางไม่มี commit ใหม่ของตัวเอง — Git แค่เลื่อน pointer ไปข้างหน้า ไม่สร้าง merge commit</details>
+<details><summary>Q6: fetch ต่างจาก pull</summary>A: fetch ดึง refs/commits ใหม่มารอไว้ (ไม่แตะ working tree/current branch); pull = fetch แล้ว merge (หรือ rebase ตาม config) เข้า branch ปัจจุบัน</details>
+<details><summary>Q7: commit ที่ดีเป็นแบบไหน 3 ข้อ</summary>A: atomic (เรื่องเดียว), message ชัดเข้าใจได้ (ทำอะไร/ทำไม), ไม่มี secret/ไฟล์ขยะ และ repo ยัง build/test ผ่าน ณ commit นั้น</details>
+
+</section>
+
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> ตาราง undo (restore/reset/revert/reflog) · กฎห้าม rebase ของที่ push แล้ว · pull = fetch + merge</div>
+
+<nav>ก่อนหน้า: <a href="06-programming.html">06 · Programming</a> · ถัดไป: <a href="08-cicd.html">08 · CI/CD</a></nav>
+
+</main>
+</body>
+</html>

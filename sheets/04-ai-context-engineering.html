@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · AI: Context Engineering</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="sheet t04">
+<main>
+
+<div class="topbar">
+<a class="brand" href="../index.html">← แผน 30 วัน</a>
+<nav class="jump">
+<a href="#s1">เข้าใจ</a><a href="#s2">ต้องจำ</a><a href="#s3">กับดัก</a><a href="#s4">Self-check</a>
+</nav>
+</div>
+<header class="hero">
+<h1><span class="num">04</span> · AI Fundamental: Context Engineering</h1>
+<p class="source">อ่าน ~35 นาที · อ้างอิงหลัก: Anthropic — Effective context engineering for AI agents; Prompt Engineering docs; Lost-in-the-Middle (Liu et al.)</p>
+</header>
+
+<section class="sec s1" id="s1">
+<h2>1. ต้องเข้าใจ</h2>
+
+<h3>Context Engineering คืออะไร</h3>
+<ul>
+<li>คือการออกแบบ<strong>ทุกอย่างที่อยู่ใน context window</strong> ณ จังหวะที่โมเดลถูกเรียก — system prompt, ประวัติ, เอกสารที่ retrieve, ผลลัพธ์ tools, ตัวอย่าง — ให้พอดีกับงาน</li>
+<li>ยกระดับจาก “prompt engineering” (เขียนคำสั่งเก่ง) → “context engineering” (จัดระบบข้อมูลรอบการเรียกให้ถูกจังหวะ): <em>prompt คือ subset ของ context</em></li>
+<li>ใช้กับทั้งแชตบอตและ agent — agent ยิ่งต้องการเพราะวนหลายรอบแล้ว context โตขึ้นเรื่อยๆ</li>
+</ul>
+
+<h3>Context window = budget</h3>
+<ul>
+<li>ขนาด context window จำกัดเป็น token และทุกอย่างกินโควตานี้ร่วมกัน: system prompt + tools + history + retrieved docs + output</li>
+<li>ใส่เยอะ ≠ ดีขึ้น: <strong>context rot</strong> — ข้อมูลเยอะเกินทำให้ความสำคัญเจือจาง, <strong>lost-in-the-middle</strong> — โมเดลจำต้น/ท้ายได้ดีกว่ากลาง</li>
+<li>ผลลัพธ์: จัดลำดับความสำคัญ — ข้อมูลสำคัญสุดไว้ต้นและ/หรือท้าย, ตัด noise ออก, ให้ “น้อยแต่คม” ดีกว่า dump ยาว</li>
+</ul>
+
+<h3>องค์ประกอบของ context ที่ต้องรู้จัก</h3>
+<ul>
+<li><strong>System prompt</strong> — persona, กติกา, convention, รูปแบบ output, ห้ามอะไร</li>
+<li><strong>Task prompt</strong> — สิ่งที่ต้องทำรอบนี้ ชัด ✅ เจาะจง + เกณฑ์สำเร็จ</li>
+<li><strong>Few-shot examples</strong> — ตัวอย่าง input→output ที่ถูกต้อง แนะนำ 2–5 ตัว; ตัวอย่างดีกว่าคำอธิบาย</li>
+<li><strong>Retrieved context (RAG)</strong> — เอกสารที่ดึงมาใส่ให้โมเดลใช้ตอบ (ดูหัวข้อ RAG ด้านล่าง)</li>
+<li><strong>Tool results</strong> — ผลจาก API/ไฟล์/คำสั่ง ที่ป้อนกลับเข้า loop</li>
+<li><strong>Conversation history</strong> — โตขึ้นทุกเทิร์น ต้องบริหาร (ตัด/สรุป)</li>
+<li><strong>Output format</strong> — ระบุ schema/JSON ได้บ่อยเท่าที่จำเป็น; ลด ambiguity = ลด hallucination</li>
+</ul>
+
+<h3>Prompt patterns ที่ใช้จริง</h3>
+<ul>
+<li><strong>Zero-shot / few-shot</strong> — ไม่มี/มีตัวอย่าง</li>
+<li><strong>Chain-of-Thought</strong> — ให้คิดทีละขั้น; แต่กับ reasoning model รุ่นใหม่ไม่ต้องบังคับ (มันคิดเอง) — เข้าใจแนวคิดไว้ตอบข้อสอบ</li>
+<li><strong>Role prompting</strong> — กำหนดบทบาท/ผู้ฟัง เพื่อคุมน้ำเสียงและระดับความลึก</li>
+<li><strong>Delimiters</strong> — ครอบข้อมูล untrusted ด้วย tag ชัด (เช่น &lt;document&gt;…&lt;/document&gt;) กันชนกับคำสั่ง</li>
+<li><strong>Negative constraints ใช้น้อยๆ</strong> — บอก “ให้ทำอะไร” หลัก; ตัวอย่าง: “use markdown” ดีกว่า “don't use HTML”</li>
+</ul>
+
+<h3>RAG (Retrieval-Augmented Generation)</h3>
+<ul>
+<li>Pipeline: เอกสาร → <strong>chunk</strong> (ตัดเป็นก้อน มี overlap) → <strong>embed</strong> (เป็น vector) → เก็บใน <strong>vector DB</strong> → ตอนถาม: embed คำถาม → retrieve top-k ที่ใกล้สุด → (rerank) → ใส่เข้า context → generate คำตอบ</li>
+<li>chunk size คือ trade-off: เล็ก = แม่นตำแหน่งแต่ขาดบริบท; ใหญ่ = มีบริบทแต่เสียงรบกวนเยอะ; overlap กันข้อมูลขาดรอยต่อ</li>
+<li>Hybrid search = keyword (BM25) + semantic (vector) ชนะทางใดทางหนึ่งเพียงอย่าง; reranker ช่วยจัดอันดับให้แม่นขึ้น</li>
+<li>วลีสำคัญสำหรับข้อสอบ: RAG = “ให้ ความรู้/ข้อมูล” ไม่ได้“เปลี่ยนพฤติกรรม” โมเดล</li>
+</ul>
+
+<h3>RAG vs Fine-tune vs Prompting vs Long-context</h3>
+<table>
+<thead><tr><th>วิธี</th><th>เหมาะกับ</th><th>จุดอ่อน</th></tr></thead>
+<tbody>
+<tr><td>Prompting / few-shot</td><td>งานทั่วไป กติกาเล็กน้อย — ลองก่อน เร็ว ถูก</td><td>ไม่เพิ่มความรู้ใหม่ จำกัดด้วย context</td></tr>
+<tr><td>RAG</td><td>ความรู้สด/เฉพาะองค์กร/ต้องอ้างอิงได้</td><td>คุณภาพขึ้นกับ retrieval; ต้องดูแล index</td></tr>
+<tr><td>Fine-tuning</td><td>พฤติกรรม/รูปแบบ/โทน/งานเฉพาะทางที่ต้องทำบ่อยๆ</td><td>แพง ต้องมีข้อมูลสะอาด อัปเดตช้า</td></tr>
+<tr><td>Long context</td><td>งานก้อนใหญ่ครั้งคราว (ทั้ง repo, ทั้งเอกสาร)</td><td>แพง/ช้า, คุณภาพกลางๆ ลด (rot/middle)</td></tr>
+</tbody>
+</table>
+<p class="source">ลำดับตัดสินใจมาตรฐาน: ลอง prompt ก่อน → ไม่พอความรู้ = RAG → ยังไม่พอรูปแบบ/ฝังลึก = fine-tune</p>
+
+<h3>บริหาร context ในงานยาว</h3>
+<ul>
+<li><strong>Compaction/Summarization</strong> — เมื่อ history ยาว สรุปให้สั้นลงแล้วลบของเก่า (agent ทำอัตโนมัติได้)</li>
+<li><strong>External memory</strong> — เขียนสิ่งที่ต้องจำลงไฟล์/DB แล้วอ่านคืนเมื่อต้องใช้ (เช่น notes.md, memory store) แทนการถือทั้งหมดใน context</li>
+<li><strong>Sub-agents / context isolation</strong> — แยกงานที่สำรวจเยอะให้ agent ลูก แล้วส่งกลับแค่ข้อสรุป (ประหยัด context แม่)</li>
+<li><strong>Tool-result hygiene</strong> — ตัด output เครื่องมือที่ยาวเกิน เช่น log หมื่นบรรทัด ให้เหลือหัว–ท้าย + สรุป</li>
+<li><strong>Truncation ที่ดี</strong> — ตัดกลางโค้งเดียว แต่รักษา: กติกา, งานปัจจุบัน, ความล้มเหลวล่าสุดที่ต้องรู้</li>
+</ul>
+
+</section>
+
+<section class="sec s2" id="s2">
+<h2>2. ต้องจำ</h2>
+<ul>
+<li>นิยาม: <strong>Context engineering = จัดการ “ทุกอย่างที่อยู่ใน context window” ให้เหมาะกับงาน</strong> ไม่ใช่แค่ข้อความสั่ง</li>
+<li><strong>Lost-in-the-middle</strong> — ต้น/ท้ายเด่น กลางจาง → วางของสำคัญหัว–ท้าย</li>
+<li><strong>RAG pipeline 5 ขั้น:</strong> chunk → embed → store → retrieve → (rerank) → generate</li>
+<li><strong>RAG ให้ความรู้ / fine-tune ให้พฤติกรรม / prompting ลองก่อน</strong></li>
+<li>Compaction, memory แยก, sub-agent = 3 เทคนิคคุม context ยาว</li>
+<li>Prompt injection จากเอกสารที่ retrieve ได้ = ความเสี่ยงประจำของ RAG (ข้อมูล untrusted ต้อง delim + ห้ามเชื่อคำสั่งในนั้น)</li>
+</ul>
+
+</section>
+
+<section class="sec s3" id="s3">
+<h2>3. กับดักข้อสอบ</h2>
+<ul>
+<li>“RAG แก้ hallucination ได้ 100%” — ผิด; ช่วยGround แต่ไม่การันตี (retrieval พลาด/โมเดลยังแต่งได้)</li>
+<li>“ใส่ context เยอะสุด = ดีสุด” — ผิด; มี cost, latency และ context rot</li>
+<li>Few-shot ≠ fine-tune — ตัวอย่างใน prompt ไม่ได้เปลี่ยน weight โมเดล</li>
+<li>“ให้โมเดลจำไว้ในความจำ”กับ “ใส่ใน context” — โมเดลไม่มี state ในตัวเองระหว่างเรียก; ความจำ = สิ่งที่ระบบเราใส่มาให้รอบใหม่</li>
+<li>Chain-of-Thought บังคับกับ reasoning model เป็นข้อลวง — รุ่นใหม่คิดภายในอยู่แล้ว (ยังรู้ concept ว่าใช้เปิด reasoning งาน multi-step)</li>
+</ul>
+
+</section>
+
+<section class="sec s4" id="s4">
+<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<details><summary>Q1: Context engineering ต่างจาก prompt engineering ยังไง</summary>A: Prompt engineering ดูแค่ถ้อยคำคำสั่ง; context engineering ดูแลทุกอย่างที่ป้อนเข้าโมเดล (system, history, retrieved docs, tool output, ตัวอย่าง) ให้พอดี budget และจังหวะ</details>
+<details><summary>Q2: เล่า RAG pipeline เป็นขั้นๆ</summary>A: chunk เอกสาร → embed เป็น vector → เก็บใน vector DB → ตอนถาม retrieve top-k → (rerank) → ใส่เป็น context → โมเดล generate จากข้อมูลนั้น (อ้างอิงได้)</details>
+<details><summary>Q3: เมื่อไรควร RAG เมื่อไรควร fine-tune</summary>A: RAG เมื่อขาด “ความรู้” ใหม่/เฉพาะองค์กรหรือต้อง cite; fine-tune เมื่อต้องการ “พฤติกรรม/รูปแบบ” เฉพาะทางที่ prompting ล้วนทำไม่เสถียร</details>
+<details><summary>Q4: Lost-in-the-middle คืออะไร มีผลต่อการวาง context ยังไง</summary>A: โมเดลให้ความสำคัญกับ token ต้นและท้าย sequence ดีกว่าตรงกลาง → วางคำสั่ง/ข้อมูลสำคัญไว้ต้นหรือท้าย context</details>
+<details><summary>Q5: บอก 3 วิธีจัดการ context เมื่อบทสนทนายาวมาก</summary>A: compaction/สรุปและตัดของเก่า; เขียนลง external memory (ไฟล์/DB) แล้ว retrieve คืน; แยกงานสำรวจให้ sub-agent แล้วรับเฉพาะบทสรุป</details>
+<details><summary>Q6: อะไรคือ context rot และทำไมเกี่ยว</summary>A: พอ context ยาวขึ้น คุณภาพการใช้ข้อมูลลดลง (ข้อมูลสำคัญเจือจาง) — เหตุผลว่าทำไมควรใส่ “น้อยแต่ตรง” และจัดลำดับ</details>
+<details><summary>Q7: Prompt injection จาก retrieved document กันยังไง</summary>A: ถือเอกสารเป็น untrusted — ครอบด้วย delimiter, ระบุห้ามทำตามคำสั่งในเอกสาร, แยก channel คำสั่งระบบกับข้อมูล, ตรวจสอบ action ก่อนรัน</details>
+
+</section>
+
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> RAG pipeline 5 ขั้น · ตาราง RAG vs fine-tune vs prompting · lost-in-the-middle → วางสำคัญหัว–ท้าย</div>
+
+<nav>ก่อนหน้า: <a href="03-security-secure-dev.html">03 · Security</a> · ถัดไป: <a href="05-ai-skills.html">05 · AI Skills</a></nav>
+
+</main>
+</body>
+</html>

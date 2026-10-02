@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>14 · AI: LLM</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="sheet t14">
+<main>
+
+<div class="topbar">
+<a class="brand" href="../index.html">← แผน 30 วัน</a>
+<nav class="jump">
+<a href="#s1">เข้าใจ</a><a href="#s2">ต้องจำ</a><a href="#s3">กับดัก</a><a href="#s4">Self-check</a>
+</nav>
+</div>
+<header class="hero">
+<h1><span class="num">14</span> · AI Fundamental: LLM</h1>
+<p class="source">อ่าน ~40 นาที · อ้างอิงหลัก: Attention Is All You Need (Vaswani et al.), Anthropic/OpenAI model docs, InstructGPT paper (RLHF)</p>
+</header>
+
+<section class="sec s1" id="s1">
+<h2>1. ต้องเข้าใจ</h2>
+
+<h3>LLM ทำงานยังไง (ระดับที่ต้องตอบได้)</h3>
+<ul>
+<li>LLM = โมเดลทางสถิติที่ทำนาย <strong>token ถัดไป</strong> จากลำดับที่ผ่านมา (next-token prediction) แล้วอลุ่มตามความน่าจะเป็น (sampling)</li>
+<li>สถาปัตยกรรมคือ <strong>Transformer</strong>; หัวใจคือกลไก <strong>attention</strong> — แต่ละ token มอง token อื่นในบริบททั้งหมดเพื่อถ่วงน้ำหนักความสำคัญ (จึงเข้าใจบริบทได้ดีกว่าโมเดลแบบเก่า)</li>
+<li>สิ่งที่ต้องประกาศให้ชัดตอนตอบข้อสอบ: <strong>โมเดลไม่ “รู้ข้อเท็จจริง” — มันเลียนแบบรูปแบบของข้อความที่เคยเห็น</strong> จึงเกิด hallucination ได้เสมอ; การ “ยืนยันข้อเท็จจริง” ต้องมาจากภายนอก (RAG/tool/คนตรวจ)</li>
+<li>ขนาด = <strong>parameters</strong> (น้ำหนักในเครือข่าย; หลายพันล้านถึงหลายล้านล้าน) — โมเดลเป็นไฟล์น้ำหนัก + โค้ดรัน (inference); ไม่ได้ lookup อินเทอร์เน็ตเอง</li>
+</ul>
+
+<h3>Token &amp; context</h3>
+<ul>
+<li><strong>Token</strong> = ชิ้นข้อความที่โมเดลอ่าน/เขียน (คำย่อย/หลายตัวอักษร/สัญลักษณ์) — ไทยมักกิน token ต่อตัวอักษรมากกว่าอังกฤษ</li>
+<li><strong>Tokenization</strong> — แปลงข้อความเป็น token ด้วยชุดที่ฝึกมา (BPE แนวคิด); ตัวเลข/โค้ดไม่ใช่ “หนึ่งหน่วยสมบูรณ์” — ส่วนหนึ่งของปัญหาคำนวณผิด</li>
+<li><strong>Context window</strong> — จำนวน token สูงสุดที่โมเดลเห็นต่อการเรียกหนึ่งครั้ง (input + output รวม; ยิ่งยาว = แพง + ช้า + คุณภาพกลางๆ ลด)</li>
+<li>ราคาคิดตาม input/output token — เข้าใจทำไม context engineering ถึงมีค่า (เชื่อมหัวข้อ 04)</li>
+</ul>
+
+<h3>3 ขั้นตอนการฝึก (ต้องท่อง)</h3>
+<ol>
+<li><strong>Pre-training</strong> — เทรนกับข้อความมหาศาล (ทำนาย token ถัดไป) → ได้โมเดลที่ “เข้าใจภาษาและโลก” แต่ยังเป็นแบบ “ต่อข้อความ” ไม่ได้ตั้งใจทำตามคำสั่ง</li>
+<li><strong>Supervised Fine-tuning (SFT / instruction tuning)</strong> — เทรนต่อกับตัวอย่าง “คำสั่ง → คำตอบ” เพื่อให้ทำตามคำสั่งได้เป็น</li>
+<li><strong>RLHF / alignment (Preference tuning)</strong> — ให้คนจัดอันดับ/ให้รางวัลคำตอบ → ปรับให้ตอบที่มีประโยชน์และปลอดภัยตามที่มนุษยชาติพึงพอใจ</li>
+</ol>
+<p class="source">ระดับรู้จักเพิ่ม: DPO คือทางเลือกแทน RLHF ที่นิยมในยุคหลัง; “post-training” = ชั้น 2+3 รวมกัน</p>
+
+<h3>พารามิเตอร์ตอน infer (ใช้บ่อย)</h3>
+<ul>
+<li><strong>Temperature</strong> — สูง = สุ่ม/สร้างสรรค์, ต่ำ → 0 = ใกล้ deterministic → งานข้อเท็จจริง/โค้ด/สกัดข้อมูลใช้ต่ำลง</li>
+<li><strong>Top-p (nucleus)</strong> / <strong>Top-k</strong> — จำกัด pool ที่จะสุ่มจาก — คำถามมักถามว่า “ทั้งสองคุมความหลากหลายต่างกันแค่” (temperature เปลี่ยนหน้าความน่าจะเป็น; top-p ตัดหาง)</li>
+<li><strong>Max output tokens</strong> — เพดานความยาวคำตอบ; <strong>stop sequences</strong> — เงื่อนไขหยุด</li>
+</ul>
+
+<h3>Embeddings — สะพานสู่ RAG</h3>
+<ul>
+<li><strong>Embedding</strong> = แปลงข้อความเป็น vector ที่ “ความหมายใกล้ = ระยะใกล้” ใช้ค้น (semantic search), จัดกลุ่ม, แนะนำ, RAG</li>
+<li>คนละตัวกับโมเดลแชต (embedding model เล็กกว่า ถูกกว่า เร็ว) — จำไว้ว่า RAG ใช้ทั้ง embedding model (ค้น) และ LLM (อ่าน/ตอบ)</li>
+</ul>
+
+<h3>Hallucination &amp; การควบคุม</h3>
+<ul>
+<li>สาเหตุ: โมเดลทำนายต่อจากรูปแบบ ไม่มีฐานข้อเท็จจริง — confidence ไม่ผูกกับความถูกต้อง; งานในความจำ (วันที่สด, ข้อมูลเฉพาะองค์กร) = เสี่ยงสูง</li>
+<li>ลดความเสี่ยง: ให้ context ที่ถูกต้อง (RAG), ให้อ้างอิง/quote จากเอกสาร, บังคับ format (JSON ที่ตรวจได้), verifier/ตรวจซ้ำ, ใช้ tool ดึงข้อมูลสด, ตั้ง temp ต่ำ — <strong>แต่ไม่มีวิธีไหนการันตี 100%</strong></li>
+</ul>
+
+<h3>ปรับโมเดลแบบอื่นๆ</h3>
+<ul>
+<li><strong>Fine-tuning</strong> — เทรนต่อจากน้ำหนักเดิม (SFT/LoRA) เพื่อสอนงาน/สไตล์; ควรมีข้อมูลสะอาด + มี eval; อย่าใช้แก้ “ทั้งเรื่องความรู้” (จะล้าสมัย + อาจลดความสามารถเดิม)</li>
+<li><strong>Quantization</strong> — ย่อความละเอียดของน้ำหนัก (เช่น 4-bit) → กินหน่วยความจำ/ราคาน้อยลง เร็วขึ้น แลกความแม่นเล็กน้อย (โจทย์ชอบถามคำตอบนี้)</li>
+<li><strong>Distillation</strong> — ให้โมเดลใหญ่เป็นครู สร้างข้อมูลสอนโมเดลเล็ก</li>
+<li><strong>Prompting vs RAG vs fine-tune</strong> — ลำดับ: prompt → RAG → fine-tune (รายละเอียดตารางในหัวข้อ 04)</li>
+</ul>
+
+<h3>Evaluation</h3>
+<ul>
+<li><strong>Benchmark สาธารณะ</strong> (เช่น MMLU, GSM8K, HumanEval แนวคิด) — ใช้เทียบโมเดลระดับตลาด; มีข้อจำกัด: อาจถูกเทรนมาเพื่อ benchmark (contamination) หรือไม่ตรงงานเรา</li>
+<li><strong>Eval ของเราเอง</strong> — ชุดงานจริง + เกณฑ์ผ่านชัด (ชอบตรวจด้วยคนหรือ verifier อีกชั้น) — ที่ใช้ตัดสินใจจริงในองค์กร</li>
+<li>ประเมินงาน generative ใช้ người chấm/criteria; งานสกัดข้อมูลใช้ exact/fuzzy match</li>
+</ul>
+
+<h3>ราคา &amp; การเลือกโมเดล</h3>
+<ul>
+<li>โมเดลใหญ่ = ฉลาดกว่าโดยเฉลี่ย แต่แพงกว่า+ช้ากว่า; โมเดลเล็ก = เร็ว/ถูก งานง่าย (classify, สกัดข้อมูล, จัดรูปแบบ) พอแล้ว — ตัดสินตามงาน + งบ + privacy (บนเครื่อง vs cloud)</li>
+<li>Latency มีหลายส่วน: queue, prompt ประมวลผล (prefill ∝ size input), การ generate (decode ∝ size output)</li>
+<li>Model family ตัวอย่าง: Claude (Opus/Sonnet/Haiku = ใหญ่/กลาง/เล็ก), GPT, Gemini, Llama (open weights), โมเดลจีน/โซน — รู้แนว “หลายเกรดเลือกตามงาน”</li>
+</ul>
+
+</section>
+
+<section class="sec s2" id="s2">
+<h2>2. ต้องจำ</h2>
+<ul>
+<li>LLM = next-token predictor บน Transformer + attention; ไม่มีฐานข้อเท็จจริงในตัวเอง</li>
+<li>3 ขั้นฝึก: <strong>Pretrain → SFT → RLHF/alignment</strong></li>
+<li>Temperature (สุ่ม) / Top-p (ตัดหางความน่าจะเป็น) / max tokens; งาน fact ใช้ temp ต่ำ</li>
+<li>Context window นับ input+output เป็น token; ราคาต่อ token</li>
+<li>Embedding = vector ความหมาย → RAG</li>
+<li>Quantization = ย่อความละเอียดน้ำหนัก; Fine-tune = สอนพฤติกรรม; RAG = ให้ความรู้</li>
+<li>Hallucination เกิดจากหลักการทำงาน ไม่ใช่ bug — ลดด้วย context/tool/verify เต็มที่ก็ไม่ 100%</li>
+<li>Benchmark เทียบตลาด; eval ของเราตัดสินจริง</li>
+</ul>
+
+</section>
+
+<section class="sec s3" id="s3">
+<h2>3. กับดักข้อสอบ</h2>
+<ul>
+<li>“โมเดลค้นเว็บเองได้/จำการสนทนาได้เอง” — ผิด; ทุกอย่างมาจากสิ่งที่ระบบป้อนให้ (context/tool) หรือน้ำหนักที่ฝึกมา</li>
+<li>Temperature = 0 แล้วได้ผลเหมือนเดิม 100% — ไม่เป๊ะระดับฮาร์ดแวร์/ผู้ให้บริการ แต่แนวคิดคือ deterministic ที่สุด</li>
+<li>Fine-tune ไว้ “อัปเดตความรู้ล่าสุด” — ผิดแนว; ใช้ RAG; fine-tune เหมาะกับพฤติกรรม/รูปแบบ</li>
+<li>“Context window ใหญ่ = ไม่ต้อง RAG” — ไม่จริงเสมอ: ราคา/คุณภาพกลางลำดับ/latency แย่ และยังต้องมีข้อมูลจะใส่ให้ถูกจังหวะ</li>
+<li>RLHF = เทรนความรู้ใหม่ — ไม่ใช่; มันปรับ “การเลือกคำตอบตามที่คนชอบ/ปลอดภัย” หลัง SFT</li>
+</ul>
+
+</section>
+
+<section class="sec s4" id="s4">
+<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<details><summary>Q1: อธิบายการทำงานของ LLM หนึ่งย่อหน้าแบบที่เข้าใจจริง</summary>A: โมเดลทำนาย token ถัดไปจากบริบท (สถาปัตยกรรม Transformer + attention ถ่วงน้ำหนักความสำคัญของทุก token) ฝึกจากข้อความมหาศาล → เก่งภาษาตามรูปแบบสถิติ แต่ไม่มีฐานข้อเท็จจริงในตัว จึงต้องคิดเรื่อง hallucination เสมอ</details>
+<details><summary>Q2: 3 ขั้นตอนการฝึกโมเดลเรียงตามลำดับ</summary>A: 1) Pretraining ทำนาย token 2) SFT ทำตามคำสั่ง/ตัวอย่าง 3) RLHF/Preference alignment ให้ตอบที่มีประโยชน์-ปลอดภัยตามที่คนชอบ</details>
+<details><summary>Q3: Temperature กับ top-p ต่างกันยังไง</summary>A: temperature สเกลความ “คม/แบน” ของความน่าจะเป็นก่อนสุ่ม (สูง=หลากหลาย); top-p ตัดเฉพาะกลุ่มความน่าจะเป็นสะสมถึง p แล้วสุ่มในนั้น (ตัดหาง) — ใช้คุมความสุ่มคนละกลไก</details>
+<details><summary>Q4: ทำไม LLM hallucinate และลดได้ยังไง</summary>A: เพราะเลียนรูปแบบสถิติ ไม่มีแหล่งข้อเท็จจริง — ลดด้วยการป้อน context ที่ถูก (RAG), บังคับอ้างอิง, เทียบกับ tool, verifier, temp ต่ำ; ไม่มีทาง elimination 100%</details>
+<details><summary>Q5: Quantization คืออะไร แลกอะไร</summary>A: ลดความละเอียดของตัวเลขน้ำหนัก (เช่น fp16→4-bit) ให้โมเดลกิน RAM น้อยลง เร็วขึ้น/ถูกลง แลกกับคุณภาพที่อาจลดลงเล็กน้อย</details>
+<details><summary>Q6: Benchmark กับ eval ของเราเองต่างกันเมื่อไรใช้</summary>A: benchmark = สาธารณะ ใช้เทียบตลาด (อาจ contamination/ไม่ตรงงานเรา); eval ของเรา = ชุดงานจริง+เกณฑ์ของเรา ใช้ตัดสินใจ deploy จริง</details>
+<details><summary>Q7: เลือกโมเดลเล็กหรือใหญ่ ตัดสินจากอะไร 3 อย่าง</summary>A: ความซับซ้อนงาน (reasoning ต้องใหญ่), งบ/ราคาต่อ token+latency, และข้อกำหนด privacy/ที่ตั้งข้อมูล (บนเครื่อง vs cloud)</details>
+
+</section>
+
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> 3 ขั้นฝึก (Pretrain→SFT→RLHF) · temperature=สุ่ม / top-p=ตัดหาง · RAG=ความรู้ / fine-tune=พฤติกรรม / quant=ย่อโมเดล</div>
+
+<nav>ก่อนหน้า: <a href="13-software-development.html">13 · Software Development</a> · <a href="../index.html">กลับสารบัญ</a></nav>
+
+</main>
+</body>
+</html>

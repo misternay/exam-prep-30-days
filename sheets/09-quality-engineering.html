@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · Quality Engineering</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="sheet t09">
+<main>
+
+<div class="topbar">
+<a class="brand" href="../index.html">← แผน 30 วัน</a>
+<nav class="jump">
+<a href="#s1">เข้าใจ</a><a href="#s2">ต้องจำ</a><a href="#s3">กับดัก</a><a href="#s4">Self-check</a>
+</nav>
+</div>
+<header class="hero">
+<h1><span class="num">09</span> · Quality Engineering</h1>
+<p class="source">อ่าน ~35 นาที · อ้างอิงหลัก: ISTQB glossary, Google Testing Blog (test pyramid/sizes), xUnit Test Patterns (Meszaros)</p>
+</header>
+
+<section class="sec s1" id="s1">
+<h2>1. ต้องเข้าใจ</h2>
+
+<h3>QA vs QC vs Testing (ศัพท์ที่ข้อสอบชอบแยก)</h3>
+<ul>
+<li><strong>Quality Assurance (QA)</strong> — กระบวนการ/ระบบที่ทำให้ “สร้างของดีตั้งแต่แรก” (process-oriented, prevention)</li>
+<li><strong>Quality Control (QC)</strong> — การตรวจผลิตภัณฑ์/ผลลัพธ์ว่าถูกต้องไหม (product-oriented, detection)</li>
+<li><strong>Testing</strong> — กิจกรรมหนึ่งของ QC; <strong>quality engineering</strong> = รวมทุกอย่าง (process + เทคนิค + เครื่องมือ + วัฒนธรรม)</li>
+<li><strong>Shift-left</strong> — ย้ายกิจกรรมคุณภาพไปทางซ้ายของ timeline (review, static analysis, TDD ตั้งแต่โค้ดแรก) — แก้ก่อนถูกกว่าเสมอ</li>
+<li><strong>Quality built-in ไม่ใช่ inspected-in</strong> — คุณภาพมาจากวิธีทำงาน ไม่ใช่การตรวจท้ายน้ำ</li>
+</ul>
+
+<h3>Test pyramid (ท่องรูปและเหตุผล)</h3>
+<ul>
+<li><strong>Unit (ชั้นล่าง — เยอะสุด):</strong> ทดสอบฟังก์ชัน/คลาสเดียวแบบ isolate, เร็วมาก (ms), รันใน CI ทุกครั้ง, feedback เร็ว</li>
+<li><strong>Integration (ชั้นกลาง):</strong> ทดสอบการเชื่อมกันของหลาย part (DB, HTTP, message) — ช้ากว่า แต่จับ bug ที่ unit ไม่เจอ (wiring, config, contract)</li>
+<li><strong>E2E/UI (ชั้นยอด — น้อยสุด):</strong> ทดสอบระบบรวมเหมือนผู้ใช้จริง — ช้า, flaky ง่าย, แพง; ใช้เฉพาะ critical path (login, checkout)</li>
+<li><strong>Anti-pattern:</strong> inverted pyramid (E2E เยอะ, unit น้อย) = “ice cream cone” — suite ช้า, พังมั่ว, debug ยาก</li>
+<li>Test size ของ Google: small/medium/large อิง resource ที่ใช้ (อธิบายเพิ่มได้)</li>
+</ul>
+
+<h3>Test doubles (ของปลอมในเทสต์)</h3>
+<table>
+<thead><tr><th>ตัว</th><th>คืออะไร</th><th>ใช้เมื่อ</th></tr></thead>
+<tbody>
+<tr><td>Dummy</td><td>ค่าอะไรก็ได้ เพื่อเติม argument ให้ครบ</td><td>ไม่ถูกเรียกจริง</td></tr>
+<tr><td>Stub</td><td>ตอบค่าตายตัวที่เตรียมไว้</td><td>ควบคุม input ทางอ้อม</td></tr>
+<tr><td>Spy</td><td>ห่อของจริง/ของปลอม แล้วบันทึกว่าเรียกอะไร</td><td>ตรวจว่าถูกเรียกไหม</td></tr>
+<tr><td>Mock</td><td>ตั้ง expectation: ต้องถูกเรียกแบบนี้ → verify</td><td>ยืนยัน interaction</td></tr>
+<tr><td>Fake</td><td>implementation จริงแบบเบา (in-memory DB, fake SMTP)</td><td>แทนของหนัก โดยรักษาพฤติกรรมหลัก</td></tr>
+</tbody>
+</table>
+
+<h3>TDD &amp; BDD</h3>
+<ul>
+<li><strong>TDD cycle: RED → GREEN → REFACTOR</strong> — เขียนเทสต์ที่พังก่อน (RED) → เขียนโค้ดน้อยสุดให้ผ่าน (GREEN) → ปรับโครงโดยเทสต์ยังเขียว (REFACTOR)</li>
+<li>ประโยชน์: design ดีขึ้น (testable = loosely coupled), เอกสาร behavior, regression safety net</li>
+<li><strong>BDD:</strong> เขียนจากมุมธุรกิจ — <strong>Given</strong> (สถานะตั้งต้น) <strong>When</strong> (การกระทำ) <strong>Then</strong> (ผลที่คาดหวัง) — ผูกกับ acceptance criteria</li>
+<li><strong>Acceptance criteria</strong> — เงื่อนไขที่ต้องจริงเพื่อถือว่า user story เสร็จ; <strong>Definition of Done</strong> — checklist กว้างระดับทีม (รวม test/review/docs ผ่าน)</li>
+</ul>
+
+<h3>มิติคุณภาพอื่น</h3>
+<ul>
+<li><strong>Static analysis:</strong> lint, formatter, type check, SAST — จับได้โดยไม่รันโค้ด; เร็ว ถูก รันใน CI ทุก PR</li>
+<li><strong>Coverage:</strong> line vs branch coverage — บอกว่าโค้ด “ถูกแตะ” ไม่ได้บอกว่า “ถูกต้อง”; ใช้หา blind spot ไม่ใช่ตั้งเป็น KPI (coverage สูง + assertion อ่อน = เสแสร้ง)</li>
+<li><strong>Contract testing</strong> — สัญญาระหว่างผู้ให้/ผู้ใช้ API (Pact) จับ breaking change ก่อน deploy</li>
+<li><strong>Non-functional:</strong> performance/load (baseline + p95/p99), stress, security testing, accessibility, reliability — มีเกณฑ์วัดชัด ไม่ใช่ “รู้สึกว่าเร็ว”</li>
+<li><strong>Smoke test</strong> — ชุดสั้นๆ ยืนยันระบบ “มีชีวิต” หลัง deploy; <strong>regression test</strong> — ชุดที่กันของเก่าพังเมื่อแก้ใหม่</li>
+</ul>
+
+<h3>Flaky tests (ศัตรูของทีม) — สาเหตุและทางแก้</h3>
+<ul>
+<li>สาเหตุ: รอเวลาแบบ sleep ตายตัว, พึ่งลำดับการรัน/state ร่วมกัน, ข้อมูลทดสอบไม่ reset, เรียก network จริง, timezone/วันที่, concurrency</li>
+<li>แก้: ทำให้ deterministic (fake time, seed, isolate data ต่อ test), ไม่พึ่ง shared state, quaranทีนแล้ว fix ทันที — <strong>ห้าม rerun จนผ่านแล้วเดินต่อ</strong></li>
+</ul>
+
+</section>
+
+<section class="sec s2" id="s2">
+<h2>2. ต้องจำ</h2>
+<ul>
+<li>Pyramid: <strong>Unit เยอะ → Integration กลาง → E2E น้อย</strong> + เหตุผล (speed/cost/fragility)</li>
+<li><strong>TDD cycle RED-GREEN-REFACTOR</strong>; BDD = Given-When-Then</li>
+<li>Test doubles 5: dummy, stub, spy, mock, fake (แยก mock=verify interaction vs stub=ให้ค่า)</li>
+<li>QA=process, QC=product, Testing=กิจกรรม; shift-left = ย้ายคุณภาพซ้าย</li>
+<li>Coverage ≠ quality; p95/p99 สำคัญกว่า average เรื่อง performance</li>
+<li>Flaky test = ต้อง fix ไม่ใช่ทน rerun</li>
+</ul>
+
+</section>
+
+<section class="sec s3" id="s3">
+<h2>3. กับดักข้อสอบ</h2>
+<ul>
+<li>“Mock” กับ “Stub” สลับกันบ่อย: stub = ป้อนค่า, mock = ตรวจว่าถูกเรียกตามคาด — ตอบให้ตรงคำถามว่าให้ค่าหรือ verify</li>
+<li>“Coverage 100% แล้ว bug ไม่มี” — ผิดชัดเจน; ต้องพูดถึง assertion คุณภาพ + มิติอื่น</li>
+<li>“E2E เยอะสุดเพื่อความมั่นใจ” — ผิด; กลับ pyramid (ช้า flaky แพง)</li>
+<li>Integration test ไม่ใช่ “รันเทสต์ทั้งระบบช้าๆ” — คือทดสอบ “การต่อกัน” ของ component; E2E คือทั้งระบบ+UI</li>
+<li>TDD ไม่ได้ห้ามออกแบบก่อน — แต่ห้ามเขียน production code ก่อนมีเทสต์ที่พัง (ในลูปสั้นๆ)</li>
+</ul>
+
+</section>
+
+<section class="sec s4" id="s4">
+<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<details><summary>Q1: อธิบาย test pyramid พร้อมเหตุผลแต่ละชั้น</summary>A: unit เยอะสุด — เร็ว/ถูก/isolate; integration กลาง — จับปัญหา wiring/contract; e2e น้อย — ใกล้ผู้ใช้จริงแต่ช้า flaky แพง จึงเก็บ critical path</details>
+<details><summary>Q2: TDD มี 3 ขั้นอะไรบ้าง</summary>A: RED — เขียนเทสต์พังก่อน; GREEN — โค้ดน้อยสุดให้ผ่าน; REFACTOR — ปรับโครงโดยเทสต์ยังผ่าน</details>
+<details><summary>Q3: Stub ต่างจาก mock</summary>A: stub ให้ค่าที่เตรียมไว้เพื่อให้โค้ดเดินต่อ; mock ตั้ง expectation ว่าต้องถูกเรียกแบบไหน แล้ว verify ว่าเกิดจริง (ตรวจ interaction)</details>
+<details><summary>Q4: Coverage วัดอะไร และทำไมไม่ควรใช้เป็นเป้าเดียว</summary>A: วัดว่าโค้ดส่วนไหนถูกแตะในเทสต์ — ไม่ได้บอกความถูกต้อง (assertion อาจอ่อน/กรณีไม่ครบ) จึงใช้เป็นเครื่องมือหา blind spot</details>
+<details><summary>Q5: QA ต่างจาก QC</summary>A: QA = กระบวนการป้องกันคุณภาพตั้งแต่ต้น (process); QC = ตรวจผลิตภัณฑ์/ผลลัพธ์ (detection) — testing อยู่ใน QC</details>
+<details><summary>Q6: Flaky test เกิดจากอะไร แก้ยังไง</summary>A: จาก non-determinism เช่น sleep ตายตัว, shared state/ลำดับ, ข้อมูลไม่ reset, network/time จริง — แก้ให้ deterministic + isolate ข้อมูล แล้ว fix ทันทีโดยไม่ rerun หนี</details>
+<details><summary>Q7: Contract testing จับอะไร</summary>A: จับ breaking change ในสัญญา API ระหว่าง service ผู้ให้–ผู้ใช้ ก่อนไปพังจริงตอน deploy — ไม่ต้องพึ่ง E2E หนักๆ</details>
+
+</section>
+
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> pyramid + เหตุผล · RED-GREEN-REFACTOR + Given-When-Then · doubles 5 แบบ</div>
+
+<nav>ก่อนหน้า: <a href="08-cicd.html">08 · CI/CD</a> · ถัดไป: <a href="10-docker-container.html">10 · Docker</a></nav>
+
+</main>
+</body>
+</html>

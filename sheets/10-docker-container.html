@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · Docker &amp; Containerize</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="sheet t10">
+<main>
+
+<div class="topbar">
+<a class="brand" href="../index.html">← แผน 30 วัน</a>
+<nav class="jump">
+<a href="#s1">เข้าใจ</a><a href="#s2">ต้องจำ</a><a href="#s3">กับดัก</a><a href="#s4">Self-check</a>
+</nav>
+</div>
+<header class="hero">
+<h1><span class="num">10</span> · Docker &amp; Containerize</h1>
+<p class="source">อ่าน ~35 นาที · อ้างอิงหลัก: Docker docs — Get started, Dockerfile best practices, 12-factor app</p>
+</header>
+
+<section class="sec s1" id="s1">
+<h2>1. ต้องเข้าใจ</h2>
+
+<h3>Container vs VM (คำถามเปิดคลาสสิก)</h3>
+<ul>
+<li><strong>VM:</strong> มี kernel ของตัวเองในแต่ละเครื่อง → หนัก, บูตนาน, isolation แข็ง</li>
+<li><strong>Container:</strong> ใช้ kernel ร่วมของโฮสต์ — แค่ process ที่ถูกจำกัดด้วย <strong>namespaces</strong> (มองไม่เห็นกัน) + <strong>cgroups</strong> (จำกัด CPU/RAM) → เบา, เริ่มวินาที, portable</li>
+<li>ประโยคทอง: <em>“container ไม่ใช่ VM ขนาดเล็ก — มันคือ process ที่ถูกจองกรง”</em>; จุดนี้ส่งผลกับ security (แชร์ kernel → escape ได้ถ้าช่องโหว่ kernel) และ persistence (container ตาย → ไฟล์หาย)</li>
+</ul>
+
+<h3>Image &amp; Layer</h3>
+<ul>
+<li><strong>Image</strong> = template อ่านอย่างเดียว สร้างจาก Dockerfile เป็นชั้นๆ (<strong>layers</strong>) — แต่ละคำสั่งสร้าง layer; image = ชั้นที่ซ้อนกัน</li>
+<li><strong>Container</strong> = image + writable layer บนสุด (ตอนรัน); ลบ container → ชั้นเขียนหาย</li>
+<li><strong>Layer caching:</strong> Docker cache layer ที่ “อินพุตเหมือนเดิม” — เรียงคำสั่งให้ <em>ของที่เปลี่ยนบ่อยอยู่ท้าย</em> (COPY package.json → install deps → แล้วค่อย COPY source) ไม่งั้น cache พังทุกครั้งที่แก้โค้ด</li>
+<li><strong>Tag:</strong> <code>repo/name:tag</code> — ใช้ version จริง (1.4.2) หรือ digest สำหรับ production; <code>:latest</code> ลอยได้ = ไม่ reproducible (กับดักข้อสอบ)</li>
+<li><strong>Registry:</strong> ที่เก็บ image (Docker Hub, GitLab Registry, ECR) — flow: build → tag → push → (เครื่องอื่น) pull → run</li>
+</ul>
+
+<h3>Dockerfile ที่ดี (ท่องหลัก)</h3>
+<pre># 1. multi-stage: stage build ใหญ่ → final เล็ก ไม่มี toolchain
+FROM node:20 AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci                # ใช้ lockfile = reproducible
+COPY . .
+RUN npm run build
+
+FROM node:20-slim
+WORKDIR /app
+COPY --from=build /app/dist ./dist
+USER node                 # ไม่รันเป็น root
+EXPOSE 3000               # เอกสารประกอบ (ไม่ได้ publish จริง)
+CMD ["node", "dist/server.js"]</pre>
+<ul>
+<li><strong>Best practices:</strong> base image เล็ก/ официальный, pin version, multi-stage, ไม่มี secret ใน image (ใช้ env/secret mount), <strong>.dockerignore</strong> ตัด node_modules/.git ออกก่อน COPY, RUN รวมคำสั่งที่เกี่ยวกัน (ลด layer), HEALTHCHECK สำหรับ orchestrator</li>
+<li><strong>ENTRYPOINT vs CMD:</strong> ENTRYPOINT = คำสั่งหลักตายตัว; CMD = default ที่ถูก override ได้จาก command line; ถ้าใช้คู่กัน CMD = default args ของ ENTRYPOINT — ใช้ <strong>exec form</strong> <code>["exe","arg"]</code> เสมอ (PID 1 รับ signal ถูก, ไม่มี shell zombie)</li>
+</ul>
+
+<h3>คำสั่งที่ต้องแม่น</h3>
+<pre>docker build -t myapp:1.0 .          # build จาก Dockerfile ปัจจุบัน
+docker run -d -p 8080:3000 --name web myapp:1.0
+docker ps / docker ps -a             # container รันอยู่/ทั้งหมด
+docker logs -f web                   # ดู log
+docker exec -it web sh               # เข้าไปใน container ที่รันอยู่
+docker stop web && docker rm web
+docker images / docker rmi myapp:1.0
+docker pull / docker push</pre>
+<p class="source">จำแยก: <code>run</code>=สร้างจาก image, <code>start/stop/rm</code>=คุม container เดิม; <code>exec</code>=เข้าไปสั่งงานข้างใน</p>
+
+<h3>Data &amp; Network</h3>
+<ul>
+<li><strong>Stateless-first:</strong> container ควรไม่มี state ในตัว (12-factor) — state ไป DB/object storage/queue</li>
+<li>ถ้าต้องเก็บไฟล์: <strong>Volume</strong> (Docker จัดการ, life-cycle แยกจาก container) vs <strong>Bind mount</strong> (ผูกโฟลเดอร์โฮสต์ — ใช้ตอน dev); ข้อมูลใน writable layer หายเมื่อ container ถูกลบ</li>
+<li><strong>Network:</strong> default bridge —ต้อง map port <code>-p host:container</code>; user-defined network — container เรียกกันด้วย “ชื่อ” ได้ (DNS ในตัว) เหมาะกับ multi-service</li>
+<li><strong>Docker Compose:</strong> นิยามหลาย service ใน <code>docker-compose.yml</code> (services, image/build, ports, volumes, environment, depends_on) → <code>docker compose up -d</code> — ใช้ dev/local stack</li>
+</ul>
+
+<h3>Orchestration (รู้ไว้ตอบต่อ)</h3>
+<ul>
+<li>Docker รัน container เดี่ยว; production หลายเครื่องใช้ orchestrator — <strong>Kubernetes:</strong> Pod (หน่วยเล็กสุด ห่อ 1+ container), Deployment (จัดการ replicas + rolling update), Service (stable DNS/load-balance), ConfigMap/Secret (config แยกจาก image)</li>
+<li>แนวคิดที่ต้องพูดได้: desired state, self-healing (restart), scaling, rollout</li>
+</ul>
+
+</section>
+
+<section class="sec s2" id="s2">
+<h2>2. ต้องจำ</h2>
+<ul>
+<li>Container = process + namespaces + cgroups แชร์ kernel; VM มี kernel เอง</li>
+<li>Image = layers read-only; container = + writable layer (หายเมื่องานลบ)</li>
+<li>Layer cache เรียง: ของเปลี่ยนน้อยบนสุด, เปลี่ยนบ่อยล่างสุด</li>
+<li>คำสั่งชุด run/ps/logs/exec/stop/rm + แยก run vs start</li>
+<li>ห้าม secret ใน image; ห้ามพึ่ง :latest ใน prod</li>
+<li>Volume vs bind mount — persist data นอก container</li>
+<li>ENTRYPOINT ตายตัว / CMD override ได้ / ใช้ exec form</li>
+</ul>
+
+</section>
+
+<section class="sec s3" id="s3">
+<h2>3. กับดักข้อสอบ</h2>
+<ul>
+<li>“Container เก็บข้อมูลถาวรได้เอง” — ผิด; writable layer ตายกับ container → ใช้ volume</li>
+<li>แก้ Dockerfile แล้ว build ใหม่ช้าเพราะ cache เสีย — ตรวจลำดับ COPY (ก็อป source ก่อน install = ตาย)</li>
+<li><code>EXPOSE</code> ไม่ได้เปิดพอร์ตจริง — เป็น metadata/เอกสาร; ที่เปิดจริงคือ <code>-p</code> (หรือ network ภายใน)</li>
+<li>“Image กับ container อย่างเดียวกัน” — ผิดชัด; image = class, container = instance</li>
+<li>Container ที่รันเป็น root ผิดหลัก least privilege — production ควร non-root USER</li>
+<li>Compose ≠ orchestrator production (ไม่ self-heal/scale ข้ามเครื่อง) — อย่าตอบเกิน</li>
+</ul>
+
+</section>
+
+<section class="sec s4" id="s4">
+<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<details><summary>Q1: Container ต่างจาก VM อย่างไร (กลไก + ผลกระทบ)</summary>A: container แชร์ kernel โฮสต์ ใช้ namespaces/cgroups กัก process — เบา เร็ว; VM มี kernel ตัวเอง — แยกขาดกว่าแต่หนัก. ผลพวง: container isolation อ่อนกว่า + ข้อมูลใน container ไม่ถาวร</details>
+<details><summary>Q2: ทำไมต้อง multi-stage build</summary>A: ให้ final image มีแค่ artifact + runtime ไม่พก toolchain/dependency ของขั้น build → image เล็กลง ปลอดภัยขึ้น</details>
+<details><summary>Q3: จัดลำดับ Dockerfile ยังไงให้ cache ทำงาน</summary>A: เอาคำสั่งที่ input เปลี่ยนน้อยอยู่ก่อน (base, deps manifest) คำสั่งที่เปลี่ยนบ่อย (COPY source) ไว้ท้าย — แก้โค้ดแล้วไม่ต้อง install deps ใหม่</details>
+<details><summary>Q4: ข้อมูลใน container หายเมื่อไร จะเก็บยังไง</summary>A: หายเมื่อ container ถูกลบ (writable layer); เก็บด้วย volume หรือ bind mount (และหรือดัน state ไป DB/object storage)</details>
+<details><summary>Q5: ENTRYPOINT กับ CMD ต่างกัน</summary>A: ENTRYPOINT คำสั่งหลักที่ตายตัวไม่ถูก override ง่าย; CMD ค่า default (คำสั่ง/args) ที่ผู้ใช้ override ได้ — ใช้คู่กัน = ENTRYPOINT + args default</details>
+<details><summary>Q6: ทำไม production ไม่ควรใช้ tag :latest</summary>A: ไม่ระบุเวอร์ชัน → pull ตอนไหนได้ของใหม่ไม่รู้ตัว, ไม่ reproducible, rollback ไม่ได้ — ใช้ version tag/digest</details>
+<details><summary>Q7: Pod/Deployment/Service ใน Kubernetes ต่างกันยังไง</summary>A: Pod = หน่วยรันเล็กสุด (1+ container); Deployment = คุมจำนวน replica + rolling update ของ Pod; Service = DNS/load-balancer หน้า Pod ให้ที่อยู่คงที่</details>
+
+</section>
+
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> container=process ที่ถูกจองกรง (namespaces+cgroups) · Dockerfile best 7 ข้อ · run/ps/logs/exec/stop/rm</div>
+
+<nav>ก่อนหน้า: <a href="09-quality-engineering.html">09 · Quality Engineering</a> · ถัดไป: <a href="11-ai-coding-workflow.html">11 · AI Coding Workflow</a></nav>
+
+</main>
+</body>
+</html>

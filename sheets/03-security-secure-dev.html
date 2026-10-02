@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · Security &amp; Secured Dev</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="sheet t03">
+<main>
+
+<div class="topbar">
+<a class="brand" href="../index.html">← แผน 30 วัน</a>
+<nav class="jump">
+<a href="#s1">เข้าใจ</a><a href="#s2">ต้องจำ</a><a href="#s3">กับดัก</a><a href="#s4">Self-check</a>
+</nav>
+</div>
+<header class="hero">
+<h1><span class="num">03</span> · Security &amp; Secured Dev</h1>
+<p class="source">อ่าน ~45 นาที · อ้างอิงหลัก: OWASP Top 10:2025 (top10.owasp.org), OWASP Cheat Sheets, OAuth 2.0 (RFC 6749) / OIDC</p>
+</header>
+
+<section class="sec s1" id="s1">
+<h2>1. ต้องเข้าใจ</h2>
+
+<h3>เป้าหมายความปลอดภัย</h3>
+<ul>
+<li><strong>CIA triad:</strong> Confidentiality ( secrecy — เข้ารหัส/คุมสิทธิ์), Integrity (ข้อมูลไม่ถูกแก้โดยไม่ได้รับอนุญาต), Availability (ระบบใช้ได้ — กัน DoS)</li>
+<li>เสริม: Authentication, Authorization, Non-repudiation (ปฏิเสธไม่ได้ว่าทำ — ลายเซ็น/log)</li>
+<li><strong>Defense in depth</strong> — หลายชั้นป้องกัน อย่าพึ่งชั้นเดียว; <strong>Least privilege</strong> — ให้สิทธิ์เท่าที่จำเป็น; <strong>Fail-safe defaults</strong> — พังแล้วต้องปิด (deny) ไม่ใช่เปิด</li>
+</ul>
+
+<h3>OWASP Top 10:2025 — ท่อง (ฉบับปัจจุบัน)</h3>
+<ol>
+<li><strong>A01 Broken Access Control</strong> — ผู้ใช้ทำเกินสิทธิ์ (IDOR, path traversal); <em>SSRF ถูกยุบเข้ามารวมหมวดนี้</em> — ยังครองอันดับ 1</li>
+<li><strong>A02 Security Misconfiguration</strong> — default ไม่ปลอดภัย, debug เปิด, S3 public, verbose error (ขยับจาก #5 ขึ้นมา #2)</li>
+<li><strong>A03 Software Supply Chain Failures</strong> — dependency / build system / ช่องทางแจกจ่าย ถูกโจมตี (ต่อยอดจาก Vulnerable &amp; Outdated Components เดิม)</li>
+<li><strong>A04 Cryptographic Failures</strong> — เข้ารหัสอ่อน/ไม่เข้ารหัสข้อมูลสำคัญ, MD5/SHA1, hardcode key → TLS, at-rest encryption, algorithm ทันสมัย</li>
+<li><strong>A05 Injection</strong> — SQL/Command/NoSQL + XSS (XSS=ถี่สูง/ผลต่ำ, SQLi=ถี่ต่ำ/ผลสูง) → parameterized queries, แยกคำสั่งจากข้อมูล</li>
+<li><strong>A06 Insecure Design</strong> — ออกแบบขาด threat model เช่น ไม่มี rate limit, ไม่มี recovery flow</li>
+<li><strong>A07 Authentication Failures</strong> — ไม่มี MFA, password อ่อน, session ไม่หมดอายุ (ชื่อย่อลงจาก Identification &amp; Authentication เดิม)</li>
+<li><strong>A08 Software or Data Integrity Failures</strong> — deserialize ของไม่น่าเชื่อถือ, artifact/อัปเดตไม่ตรวจ signature</li>
+<li><strong>A09 Security Logging &amp; Alerting Failures</strong> — log/แจ้งเตือนไม่พอ ตรวจจับ breach ไม่ได้ (เดิม Monitoring)</li>
+<li><strong>A10 Mishandling of Exceptional Conditions</strong> — จัดการ error/edge case แย่: fail-open, error เผยข้อมูล, ไม่ validate กรณีพิเศษ (หมวดใหม่)</li>
+</ol>
+<table>
+<thead><tr><th>ฉบับ 2021</th><th>→ ฉบับ 2025</th></tr></thead>
+<tbody>
+<tr><td>A10 SSRF</td><td>ยุบเข้ารวม A01</td></tr>
+<tr><td>A05 Security Misconfiguration</td><td>ขยับขึ้นเป็น A02</td></tr>
+<tr><td>A06 Vulnerable &amp; Outdated Components</td><td>ขยายเป็น A03 Supply Chain</td></tr>
+<tr><td>A07 Identification &amp; Authentication</td><td>A07 Authentication (ชื่อสั้นลง)</td></tr>
+<tr><td>A09 Logging &amp; Monitoring</td><td>A09 Logging &amp; Alerting</td></tr>
+<tr><td>—</td><td>A10 Exceptional Conditions (ใหม่)</td></tr>
+</tbody>
+</table>
+
+<h3>AuthN vs AuthZ</h3>
+<ul>
+<li><strong>Authentication</strong> = “คุณคือใคร” (login, MFA, session) · <b>Authorization</b> = “คุณทำอะไรได้” (role/permission)</li>
+<li><strong>Session-based:</strong> server เก็บ state + cookie กับ session id (revoke ได้ทันที) · <strong>Token-based (JWT):</strong> stateless ตรวจที่ลายเซ็น — ข้อเสียคือ revoke ยาก → อายุสั้น + refresh token</li>
+<li><strong>JWT = header.payload.signature</strong> — payload เป็นแค่ Base64 (อ่านได้ ไม่ใช่การเข้ารหัส) ห้ามใส่ข้อมูลลับ; กับดักคลาสสิก: เซิร์ฟเวอร์เช็ค <code>alg</code> จาก token เอง (alg=none attack) → fix: กำหนด algorithm ที่ฝั่ง verify</li>
+<li><strong>OAuth2 = authorization framework</strong> (ให้สิทธิ์แอปเข้าถึงข้อมูล) ไม่ใช่ authentication ตัวมันเอง; roles: Resource Owner, Client, Authorization Server, Resource Server; flow ที่ควรใช้: <strong>Authorization Code + PKCE</strong> (web/mobile); Client Credentials = server-to-server; Implicit ถูกยกเลิกแล้ว</li>
+<li><strong>OIDC = ชั้น authentication บน OAuth2</strong> — ได้ ID token (JWT) บอกตัวตนผู้ใช้</li>
+<li><strong>Password storage:</strong> ห้าม plaintext / ห้าม MD5-SHA เดี่ยว; ใช้ <strong>bcrypt / scrypt / Argon2 + per-user salt</strong>; เพิ่ม rate limit, lockout, ไม่บอกว่า “user ไม่มี” vs “รหัสผิด” (user enumeration)</li>
+</ul>
+
+<h3>ช่องโหว่ต้องจำ + วิธีกัน</h3>
+<table>
+<thead><tr><th>Attack</th><th>กลไก</th><th>Defense</th></tr></thead>
+<tbody>
+<tr><td>SQL Injection</td><td>ต่อ string จาก input เข้า query</td><td>Parameterized query / prepared statement</td></tr>
+<tr><td>Stored/Reflected XSS</td><td>สคริปต์จากผู้ใช้ถูก render เป็น HTML ให้คนอื่น</td><td>Output encoding ตาม context + CSP + HttpOnly cookie</td></tr>
+<tr><td>DOM XSS</td><td>JS ฝั่ง client เขียน innerHTML จากข้อมูล untrusted</td><td>ใช้ textContent / sanitizer library</td></tr>
+<tr><td>CSRF</td><td>เว็บอื่นหลอก browser ผู้ใช้ให้ยิง request พร้อม cookie</td><td>CSRF token + SameSite cookie + ตรวจ Origin</td></tr>
+<tr><td>IDOR</td><td>เปลี่ยน id ใน request ได้ของคนอื่น</td><td>ตรวจ ownership ทุก object ก่อนคืนค่า</td></tr>
+<tr><td>SSRF</td><td>server ถูกสั่งไปเรียก URL ภายใน/metadata</td><td>Allowlist host, บล็อก private IP range</td></tr>
+<tr><td>Path traversal</td><td>ชื่อไฟล์ <code>../../etc/passwd</code></td><td>Normalize + allowlist + ไม่ใช้ชื่อไฟล์จากผู้ใช้ตรงๆ</td></tr>
+<tr><td>Supply chain</td><td>dependency/plugin/CI ถูกฝังโค้ดอันตราย</td><td>Pin version, SCA scan, SBOM, ตรวจ signature</td></tr>
+</tbody>
+</table>
+
+<h3>Secure SDLC — “Secured Dev”</h3>
+<ul>
+<li><strong>Shift left</strong> — ตรวจความปลอดภัยตั้งแต่ design/code ไม่ใช่ก่อน release; ถูกกว่าแก้ทีหลังมาก</li>
+<li><strong>Threat modeling (STRIDE):</strong> Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege — ใช้ตั้งคำถาม “อะไรเสียหายได้บ้าง” ตอนออกแบบ</li>
+<li><strong>เครื่องมือใน pipeline:</strong> SAST (อ่าน source หา pattern อันตราย), DAST (ยิงทดสอบระบบที่รันอยู่), SCA (dependency/CVE), secret scanning (กันคีย์หลุด commit), container scanning (image CVE)</li>
+<li><strong>Secrets management:</strong> ห้าม commit secret ลง git (แม้ประวัติ), ใช้ vault/secret manager/env, rotate ได้, สิทธิ์อ่านแบบ least privilege</li>
+<li><strong>Zero trust</strong> — ไม่เชื่ออะไรในเน็ตเวิร์กโดยปริยาย ตรวจทุก request (verify explicitly, least privilege, assume breach)</li>
+</ul>
+
+</section>
+
+<section class="sec s2" id="s2">
+<h2>2. ต้องจำ</h2>
+<ul>
+<li><strong>OWASP Top 10:2025 เรียง A01→A10</strong> (ฉบับปัจจุบัน) — จำเพิ่ม 3 จุดเปลี่ยน: SSRF→A01 · A03=Supply Chain · A10=Exceptional Conditions (ใหม่); ยังต้องรู้ฉบับ 2021 เพราะตำราเก่าอ้างถึง</li>
+<li><strong>CIA</strong> = Confidentiality, Integrity, Availability</li>
+<li><strong>STRIDE</strong> 6 ตัว</li>
+<li><strong>password hashing:</strong> bcrypt/Argon2 + salt (ไม่ใช่ AES/MD5/SHA — พวกนั้นไม่ใช่การ hash สำหรับรหัสผ่าน)</li>
+<li><strong>flow ที่ควรใช้ใน OAuth2 = Authorization Code + PKCE</strong>; OIDC = identity layer</li>
+<li><strong>Defense in depth / Least privilege / Fail-safe defaults</strong> — นิยามสั้น</li>
+</ul>
+
+</section>
+
+<section class="sec s3" id="s3">
+<h2>3. กับดักข้อสอบ</h2>
+<ul>
+<li>“เข้ารหัสด้วย MD5” ผิดทุกกรณี (MD5/SHA ไม่ใช่สำหรับ password); “hash อย่างเดียวไม่ salt” ก็ผิด</li>
+<li>XSS = ปัญหา “output encoding” ตอน render; SQLi = ปัญหา “แยกคำสั่งจากข้อมูล” — อย่าสลับกัน</li>
+<li>401 vs 403: 401 = ยังไม่ได้ยืนยันตัวตน/ไม่ผ่าน; 403 = ยืนยันแล้วแต่ไม่มีสิทธิ์</li>
+<li>OAuth2 ไม่ใช่ authentication — ถ้าข้อสอบถาม authentication ต้องพูด OIDC</li>
+<li>HTTPS/TLS ป้องกันการดักฟังระหว่างทาง (in transit) ไม่ได้ป้องกัน SQLi/XSS — คนละชั้น</li>
+<li>“Escaping” เฉยๆ ไม่ใช่คำตอบของ SQLi ที่ดี — คำตอบหลักคือ parameterized query</li>
+<li>โจทย์อ้าง “A10 = SSRF” (ฉบับ 2021) ได้ — แต่ฉบับ 2025 SSRF อยู่ A01 และ A10 = Mishandling of Exceptional Conditions: ตอบตามปีที่โจทย์อ้าง</li>
+</ul>
+
+</section>
+
+<section class="sec s4" id="s4">
+<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<details><summary>Q1: อธิบาย CIA triad</summary>A: Confidentiality — ข้อมูลเห็นได้เฉพาะผู้มีสิทธิ์; Integrity — ข้อมูลไม่ถูกแก้/ปลอมโดยไม่ได้รับอนุญาต; Availability — ระบบพร้อมใช้งาน</details>
+<details><summary>Q2: OWASP A01 (2025) คืออะไร ยกตัวอย่าง</summary>A: Broken Access Control — เช็คสิทธิ์ไม่ครบ/ทำเกินสิทธิ์ เช่น IDOR; ฉบับ 2025 SSRF ถูกยุบเข้ามารวมในหมวดนี้ด้วย</details>
+<details><summary>Q3: เก็บรหัสผ่านยังไงให้ถูก</summary>A: Hash ด้วย bcrypt/scrypt/Argon2 พร้อม per-user salt (ปรับ cost ได้), ห้าม plaintext/MD5/SHA เดี่ยว, เพิ่ม rate limiting</details>
+<details><summary>Q4: SQLi กับ XSS ต่างกันที่จุดไหน และแก้ต่างกันยังไง</summary>A: SQLi = input ปนเข้าไปเป็นคำสั่ง query (แก้: parameterized query); XSS = input ปนเข้าไปเป็น HTML/JS (แก้: output encoding + CSP)</details>
+<details><summary>Q5: Authorization Code + PKCE ใช้ทำอะไร ต่างจาก Implicit ยังไง</summary>A: flow ที่ปลอดภัยของ OAuth2 สำหรับ public client — แลก authorization code เป็น token; Implicit คืน token ตรงใน redirect (ถูกยกเลิกเพราะ token หลุดได้)</details>
+<details><summary>Q6: STRIDE ใช้ทำอะไร</summary>A: Threat modeling — ไล่หาภัย 6 แบบ: Spoofing, Tampering, Repudiation, Information disclosure, DoS, Elevation of privilege</details>
+<details><summary>Q7: Shift-left หมายถึงอะไร ทำไม</summary>A: ย้ายงานตรวจความปลอดภัยไปทางซ้ายของ timeline (design/code แรกสุด) — ต้นทุนแก้ bug ถูกกว่ามากและไม่ติดไป prod</details>
+
+</section>
+
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> OWASP Top 10 names (A01–A10) · STRIDE 6 ตัว · กฎเก็บ password (bcrypt/Argon2 + salt)</div>
+
+<nav>ก่อนหน้า: <a href="02-software-design.html">02 · Software Design</a> · ถัดไป: <a href="04-ai-context-engineering.html">04 · Context Engineering</a></nav>
+
+</main>
+</body>
+</html>

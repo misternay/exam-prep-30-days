@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · Database / SQL</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="sheet t01">
+<main>
+
+<div class="topbar">
+<a class="brand" href="../index.html">← แผน 30 วัน</a>
+<nav class="jump">
+<a href="#s1">เข้าใจ</a><a href="#s2">ต้องจำ</a><a href="#s3">กับดัก</a><a href="#s4">Self-check</a>
+</nav>
+</div>
+<header class="hero">
+<h1><span class="num">01</span> · Database / SQL</h1>
+<p class="source">อ่าน ~35 นาที · ทวนการ์ด D+1 · self-check D+7 · อ้างอิงหลัก: PostgreSQL Docs (postgresql.org/docs), Use The Index Luke (use-the-index-luke.com)</p>
+</header>
+
+<section class="sec s1" id="s1">
+<h2>1. ต้องเข้าใจ</h2>
+
+<h3>Relational model &amp; keys</h3>
+<ul>
+<li>ตาราง = relation, แถว = row/tuple, คอลัมน์ = column/attribute</li>
+<li><strong>Primary key</strong> — ระบุแถวไม่ซ้ำ, ห้าม NULL · <strong>Foreign key</strong> — อ้างถึง PK ของอีกตาราง (บังคับ referential integrity) · <strong>UNIQUE</strong> — ห้ามซ้ำแต่รับ NULL ได้ · <strong>CHECK / NOT NULL</strong> — constraint ระดับคอลัมน์</li>
+<li><strong>NULL</strong> = “ไม่ทราบค่า” ไม่ใช่ 0 หรือ “” — เปรียบเทียบด้วย <code>IS NULL</code> ไม่ใช่ <code>= NULL</code>; <code>NULL = NULL</code> ไม่เป็น true (three-valued logic: TRUE/FALSE/UNKNOWN) — กับดักเวลา <code>NOT IN (subquery ที่มี NULL)</code> จะได้ผลว่าง</li>
+</ul>
+
+<h3>Normalization</h3>
+<ul>
+<li><strong>1NF</strong> — ทุกช่องเก็บค่าเดี่ยว (atomic) ไม่มี list ในช่อง</li>
+<li><strong>2NF</strong> — 1NF + ไม่มี partial dependency (คอลัมน์ไม่ขึ้นกับ “บางส่วน” ของ composite key)</li>
+<li><strong>3NF</strong> — 2NF + ไม่มี transitive dependency (non-key ขึ้นกับ non-key อีกที)</li>
+<li><strong>BCNF</strong> — ทุก determinant ต้องเป็น candidate key (เข้มกว่า 3NF)</li>
+<li>หลักคิด: normalize เพื่อลด redundancy/update anomaly; <strong>denormalize ได้เมื่ออ่านหนัก</strong> (ยอม redundancy แลกความเร็ว) — ต้องบอก trade-off ได้</li>
+</ul>
+
+<h3>Transactions &amp; ACID</h3>
+<ul>
+<li><strong>A</strong>tomicity — สำเร็จทั้งหมดหรือไม่มีเลย · <strong>C</strong>onsistency — จาก valid state ไป valid state (constraint ยังถูก) · <strong>I</strong>solation — transaction  concurrent ไม่รบกวนกัน · <strong>D</strong>urability — commit แล้วข้อมูลอยู่จริงแม้ไฟดับ</li>
+<li>COMMIT / ROLLBACK / SAVEPOINT; ตัวอย่างBank: หักบัญชี + เพิ่มบัญชี ต้องอยู่ใน transaction เดียว</li>
+</ul>
+
+<h3>Concurrency anomalies &amp; isolation levels</h3>
+<ul>
+<li><strong>Dirty read</strong> — อ่านค่าที่คนอื่นยังไม่ commit · <strong>Non-repeatable read</strong> — อ่านเดิม 2 ครั้งได้ค่าไม่เท่า (มีคน UPDATE commit ระหว่างนั้น) · <strong>Phantom read</strong> — query เดิม 2 ครั้งได้ “จำนวนแถว” ไม่เท่า (มีคน INSERT ระหว่างนั้น)</li>
+<li><strong>Lost update</strong> — สอง transaction อ่านค่าเดียวกันแล้วเขียนทับกัน (เกิดได้แม้ RC — ต้องใช้ lock SELECT FOR UPDATE หรือ optimistic version)</li>
+</ul>
+
+<h3>Indexes</h3>
+<ul>
+<li>ส่วนใหญ่คือ <strong>B-tree</strong> — เร่ง equality + range + ORDER BY; hash index ใช้ได้แค่ equality</li>
+<li><strong>Composite index (a,b,c)</strong> ใช้ได้ตาม <strong>leftmost prefix</strong>: query ที่กรอง a / a,b / a,b,c ใช้ได้ — กรอง b อย่างเดียวไม่ใช้ (กับดักข้อสอบยอดฮิต)</li>
+<li>Index ทำให้ <strong>อ่านเร็ว เขียนช้าลง</strong> (ทุก INSERT/UPDATE ต้องอัปเดต index) + กินพื้นที่ — อย่าใส่พร่ำเพรื่อ</li>
+<li><code>EXPLAIN ANALYZE</code> — ดู plan จริง: seq scan vs index scan, rows estimate; ใช้ตอบคำถาม “ทำไมช้า”</li>
+<li>กับดักทำให้ index ใช้ไม่ได้: ใส่ฟังก์ชันบนคอลัมน์ (<code>WHERE lower(email)=…</code>), implicit cast ชนิดไม่ตรง, <code>LIKE '%x%'</code></li>
+</ul>
+
+<h3>Query ที่ต้องแม่น</h3>
+<ul>
+<li><strong>Join:</strong> INNER = ตรงกันทั้งคู่ · LEFT = เอาทั้งซ้าย+คู่ที่ตรง (ไม่ตรง = NULL ทางขวา) · RIGHT = กลับกัน · FULL = ทั้งสองฝั่ง · CROSS = คูณกันทุกแถว</li>
+<li><strong>Logical execution order:</strong> FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT — จึงอธิบายได้ว่า ทำไม WHERE กรอง aggregate ไม่ได้ ต้องใช้ HAVING</li>
+<li><strong>Aggregate:</strong> COUNT/SUM/AVG/MIN/MAX + GROUP BY; <code>COUNT(*)</code> นับทุกแถว, <code>COUNT(col)</code> ไม่นับ NULL</li>
+<li><strong>Window functions</strong> — คำนวณข้ามแถวแต่ไม่ยุบแถว: <code>ROW_NUMBER()</code> เรียงไม่ซ้ำ · <code>RANK()</code> เสมอแต่ข้ามเบอร์ (1,1,3) · <code>DENSE_RANK()</code> ไม่ข้าม (1,1,2) · <code>LAG/LEAD</code> เทียบแถวก่อน/หลัง · ใช้ <code>PARTITION BY</code> แบ่งกลุ่ม</li>
+<li><strong>Delete ซ้ำ:</strong> หา row_number() &gt; 1 ใน partition แล้วลบ — โจทย์ classic</li>
+<li><strong>Pagination:</strong> OFFSET มากๆ ช้า (ต้องกวาดทิ้ง) — ทางที่ดีคือ keyset pagination (<code>WHERE id &gt; :last ORDER BY id LIMIT n</code>)</li>
+</ul>
+
+<h3>N+1 &amp; application-level</h3>
+<ul>
+<li><strong>N+1 query</strong> — ดึง list 1 ครั้ง แล้ว loop ยิงรายแถวอีก N ครั้ง → แก้ด้วย JOIN / eager loading / batch <code>WHERE id IN (…)</code></li>
+<li><strong>SQL Injection</strong> — เกิดจากต่อสตริง SQL กับ input → แก้ที่ parameterized query / prepared statement เท่านั้น (escape/StringReplace ไม่นับว่าแก้) — ดูหัวข้อ 03</li>
+<li><strong>NoSQL types:</strong> document (MongoDB), key-value (Redis), wide-column (Cassandra), graph (Neo4j) — เลือกตาม access pattern + scale; ไม่ได้มาแทน SQL ทั้งหมด</li>
+</ul>
+
+</section>
+
+<section class="sec s2" id="s2">
+<h2>2. ต้องจำ</h2>
+<table>
+<thead><tr><th>Isolation level</th><th>Dirty read</th><th>Non-repeatable</th><th>Phantom</th></tr></thead>
+<tbody>
+<tr><td>Read Uncommitted</td><td>เกิดได้</td><td>เกิดได้</td><td>เกิดได้</td></tr>
+<tr><td>Read Committed</td><td>กันได้</td><td>เกิดได้</td><td>เกิดได้</td></tr>
+<tr><td>Repeatable Read</td><td>กันได้</td><td>กันได้</td><td>เกิดได้ (มาตรฐาน)</td></tr>
+<tr><td>Serializable</td><td>กันได้</td><td>กันได้</td><td>กันได้</td></tr>
+</tbody>
+</table>
+<p class="source">โน้ต: PostgreSQL default = Read Committed และ Repeatable Read ของ PG กัน phantom ได้จริง (snapshot isolation — เข้มกว่ามาตรฐาน SQL); MySQL InnoDB default = Repeatable Read และกัน phantom ด้วย next-key lock (locking reads) — ข้อสอบชอบถาม default มาก</p>
+
+<ul>
+<li><strong>ACID</strong> — Atomicity, Consistency, Isolation, Durability (เรียงนี้)</li>
+<li><strong>SELECT order:</strong> FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</li>
+<li><strong>RANK vs DENSE_RANK vs ROW_NUMBER</strong> — ข้ามเบอร์ / ไม่ข้าม / ไม่ซ้ำเสมอ</li>
+<li><strong>Leftmost prefix rule</strong> ของ composite index</li>
+<li><strong>Normalization:</strong> 1NF atomic, 2NF no partial, 3NF no transitive, BCNF every determinant is candidate key</li>
+<li><strong>Update lost</strong> แม้ RC ก็เกิด → SELECT … FOR UPDATE / version column</li>
+</ul>
+
+</section>
+
+<section class="sec s3" id="s3">
+<h2>3. กับดักข้อสอบ</h2>
+<ul>
+<li><code>WHERE</code> กับ aggregate (เช่น <code>WHERE COUNT(*)&gt;5</code>) — ผิด ต้องใช้ <code>HAVING</code></li>
+<li><code>COUNT(*)</code> vs <code>COUNT(col)</code> ต่างกันเมื่อมี NULL — ข้อสอบตัวเลขชอบหลอกตรงนี้</li>
+<li><code>LEFT JOIN</code> แล้วใส่เงื่อนไขของตารางขวาใน <code>WHERE</code> → กลายเป็น INNER JOIN โดยไม่ตั้งใจ (ต้องย้ายเงื่อนไขไป <code>ON</code>)</li>
+<li>Index (a,b) กับ query <code>WHERE b=…</code> — ตอบว่าไม่ใช้ leftmost</li>
+<li>TRUNCATE = ไม่ log รายแถว / reset identity ได้ / เร็วกว่า DELETE; DELETE มี WHERE ได้, TRUNCATE ลบทั้งตาราง (DDL)</li>
+<li>DDL (CREATE/ALTER/DROP) vs DML (SELECT/INSERT/UPDATE/DELETE) vs DCL (GRANT/REVOKE) — ถ้าถามหมวด ให้ตอบเป๊ะ</li>
+</ul>
+
+</section>
+
+<section class="sec s4" id="s4">
+<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<details><summary>Q1: ACID ย่อจากอะไร อธิบายแต่ละตัวสั้นๆ</summary>A: Atomicity (ทั้งหมดหรือไม่เลย), Consistency (constraint/valid state ยังถูก), Isolation (concurrent ไม่รบกวนกัน), Durability (commit แล้วอยู่จริง)</details>
+<details><summary>Q2: Non-repeatable read กับ phantom read ต่างกันยังไง</summary>A: Non-repeatable = อ่าน “แถวเดิม” ได้ค่าเปลี่ยน (UPDATE commit กลางทาง); phantom = ได้ “ชุดแถว” เปลี่ยน (INSERT/DELETE commit กลางทาง)</details>
+<details><summary>Q3: ทำไม composite index (a,b,c) ไม่ช่วย query WHERE b=1</summary>A: B-tree เรียงตาม a ก่อน — เข้าไม่ถึง b ได้ถ้าไม่รู้ a (leftmost prefix rule)</details>
+<details><summary>Q4: ลำดับ logical execution ของ SELECT มีอะไรบ้าง</summary>A: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT</details>
+<details><summary>Q5: ROW_NUMBER กับ RANK ให้ผลต่างกันยังไงเวลาเสมอกัน</summary>A: ROW_NUMBER ให้ 1,2,3 เสมอไม่ว่าเสมอ; RANK ให้ 1,1,3 (ข้าม); DENSE_RANK ให้ 1,1,2</details>
+<details><summary>Q6: N+1 query คืออะไร แก้ยังไง</summary>A: 1 query ดึง list + N query ต่อแถว — แก้ด้วย JOIN / eager load / WHERE IN (batch)</details>
+<details><summary>Q7: Lost update ต่างจาก dirty read ยังไง และกันด้วยอะไร</summary>A: Lost update = สองคนอ่านค่าเดียวกันแล้วเขียนทับกัน (ค่าที่ commit ถูกต้อง ไม่ได้อ่านของ dirty); กันด้วย lock (FOR UPDATE) หรือ optimistic version check</details>
+
+</section>
+
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> ACID · ตาราง isolation level 4 ระดับ · SELECT execution order (FROM→WHERE→GROUP BY→HAVING→SELECT→ORDER BY→LIMIT)</div>
+
+<nav>ถัดไป: <a href="02-software-design.html">02 · Software Design</a> · <a href="../index.html">กลับสารบัญ</a></nav>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>13 · Software Development</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="sheet t13">
+<main>
+
+<div class="topbar">
+<a class="brand" href="../index.html">← แผน 30 วัน</a>
+<nav class="jump">
+<a href="#s1">เข้าใจ</a><a href="#s2">ต้องจำ</a><a href="#s3">กับดัก</a><a href="#s4">Self-check</a>
+</nav>
+</div>
+<header class="hero">
+<h1><span class="num">13</span> · Software Development</h1>
+<p class="source">อ่าน ~35 นาที · อ้างอิงหลัก: Scrum Guide (scrumguides.org), Agile Manifesto, 12-factor app, Semantic Versioning</p>
+</header>
+
+<section class="sec s1" id="s1">
+<h2>1. ต้องเข้าใจ</h2>
+
+<h3>SDLC (Software Development Life Cycle)</h3>
+<ul>
+<li>เฟสหลัก: <strong>Requirements → Design → Implementation → Testing → Deployment → Maintenance</strong> (วนซ้ำได้ ไม่ใช่เส้นตรงตายตัว)</li>
+<li><strong>Waterfall:</strong> ทำเฟสต่อกันจบทีละเฟส เอกสารครบ — เหมาะงานที่ข้อกำหนดนิ่ง/สัญญาชัด (เช่นงานภาครัฐบางประเภท); ข้อเสีย: เปลี่ยนยาก, เห็นผลช้า</li>
+<li><strong>Agile:</strong> ทำเป็นรอบสั้น ได้ผลลัพธ์ใช้งานได้บ่อย, ตอบการเปลี่ยนแปลง — ไม่ได้แปลว่าไม่วางแผน (แค่แผนปรับได้)</li>
+</ul>
+
+<h3>Agile Manifesto 4 ค่า (ท่อง)</h3>
+<ul>
+<li>Individuals &amp; interactions <em>over</em> processes &amp; tools</li>
+<li>Working software <em>over</em> comprehensive documentation</li>
+<li>Customer collaboration <em>over</em> contract negotiation</li>
+<li>Responding to change <em>over</em> following a plan</li>
+<li>โน้ต: ของซ้ายมีค่ามากกว่า แต่ไม่ได้แปลว่าของขวาไร้ค่า — คำถามหลอกชอบใช้</li>
+</ul>
+
+<h3>Scrum (รู้ให้ครบ 3 หมวด)</h3>
+<ul>
+<li><strong>Roles:</strong> Product Owner (จัดลำดับคุณค่า/backlog), Scrum Master (โค้ช/ขจัดอุปสรรค — ไม่ใช่เจ้านายทีม), Developers (ทำ increment)</li>
+<li><strong>Artifacts:</strong> Product Backlog (รายการทั้งหมด), Sprint Backlog (ที่เลือกทำใน sprint), Increment (ของที่เสร็จตาม Definition of Done)</li>
+<li><strong>Events:</strong> Sprint (timebox ไม่เกิน 1 เดือน — Scrum Guide 2020) → Sprint Planning (เลือกงาน+เป้า) → Daily Scrum (15 นาที sync) → Sprint Review (โชว์ของให้ stakeholder) → Retrospective (ปรับกระบวนการ)</li>
+<li>เน้น empiricism: transparency, inspection, adaptation</li>
+</ul>
+
+<h3>แนวทางอื่นที่ควรรู้จัก</h3>
+<ul>
+<li><strong>Kanban:</strong> ไม่มี sprint ตายตัว — ไหลงานต่อเนื่อง, จำกัด <strong>WIP</strong>, วัด <strong>lead time/cycle time</strong>, บอร์ดคอลัมน์ (To Do/Doing/Done) — เหมาะงาน ops/support/งานไหลเข้าไม่คงที่</li>
+<li><strong>XP (Extreme Programming):</strong> pair programming, TDD, CI, small releases, refactoring — เน้นเทคนิคระดับโค้ด</li>
+<li>ผสมได้: Scrum ครอบ Kanban ภายใน หรือ Scrumban</li>
+</ul>
+
+<h3>Requirements</h3>
+<ul>
+<li><strong>Functional</strong> — ระบบต้องทำอะไร (“ผู้ใช้รีเซ็ตรหัสผ่านได้”)</li>
+<li><strong>Non-functional</strong> — คุณสมบัติคุณภาพ (“ตอบใน 200ms ที่ p95”, “รองรับ 1000 concurrent”, security, usability) — ข้อสอบชอบโจทย์สลับหมวด</li>
+<li><strong>User story:</strong> “ในฐานะ &lt;บทบาท&gt; ฉันต้องการ &lt;ความสามารถ&gt; เพื่อ &lt;คุณค่า&gt;” + <strong>acceptance criteria</strong> (เงื่อนไขผ่าน — มักเขียน Given/When/Then)</li>
+<li>INVEST (invest คุณภาพ story): Independent, Negotiable, Valuable, Estimable, Small, Testable</li>
+<li>งานต้องชัดก่อนเริ่ม (Definition of Ready) และชัดว่าเสร็จ (Definition of Done: code review, test ผ่าน, deploy ได้, เอกสารอัปเดต)</li>
+</ul>
+
+<h3>Estimation &amp; Planning</h3>
+<ul>
+<li><strong>Story points</strong> — วัด “ขนาด/ความซับซ้อน” แบบสัมพัทธ์ (fibonacci 1,2,3,5,8…) ไม่ใช่ชั่วโมง; <strong>Planning poker</strong> — เปิดพร้อมกันแล้วคุยจุดที่ต่างกัน</li>
+<li><strong>Velocity</strong> — points ที่ทีมทำได้ต่อ sprint (ใช้วางแผนคร่าวๆ ห้ามใช้กดดัน/เทียบข้ามทีม)</li>
+<li><strong>Burndown chart</strong> — งานเหลือลงตามเวลาใน sprint; <strong>Burnup</strong> — งานเสร็จสะสมแบบขึ้น</li>
+</ul>
+
+<h3>Tech debt &amp; กระบวนการคุณภาพในทีม</h3>
+<ul>
+<li><strong>Tech debt</strong> — หนี้เทคนิคจากทางลัด (โค้ดไม่ทดสอบ, เลี่ยง design) ดอกเบี้ย = แก้ช้าลงทุกวัน; บริหารโดย log เป็น backlog item + จ่ายคืนเป็นระยะ; ไม่ใช่ทุกหนี้ต้องจ่าย</li>
+<li><strong>Code review</strong> — purpose: จับ bug, แชร์ความรู้, รักษามาตรฐาน; PR เล็ก (<strong>~400 บรรทัด</strong>) review ได้จริง</li>
+<li><strong>ADR (Architecture Decision Record)</strong> — จดการตัดสินใจสำคัญ: บริบท/ทางเลือก/ตัดสินใจ/ผลที่ตามมา — กันทีมใหม่ถามซ้ำ</li>
+<li><strong>Boy scout rule</strong> — เห็นของสกปรกเล็กๆ ในโค้ดที่แตะ เก็บกวาดไปด้วย</li>
+</ul>
+
+<h3>Architecture scale &amp; API (ทวนเชื่อม 02)</h3>
+<ul>
+<li>วิวัฒนาการ: monolith → <strong>modular monolith</strong> → microservices; เลือกตามขนาดทีม/ความต้องการ scale แยกส่วน; microservices แลกมาด้วย network, distributed transaction, ops หนักขึ้น</li>
+<li><strong>Semantic Versioning:</strong> MAJOR(breaking).MINOR(feature เพิ่มแบบ compatible).PATCH(bugfix) — 0.x = ยังไม่ stable</li>
+<li>REST sanuk: ดูหัวข้อ 02; idempotency ของ GET/PUT/DELETE สำคัญต่อ retry ที่ปลอดภัย</li>
+</ul>
+
+</section>
+
+<section class="sec s2" id="s2">
+<h2>2. ต้องจำ</h2>
+<ul>
+<li>SDLC 6 เฟส; waterfall vs agile ข้อดี/ข้อเสียสั้นๆ</li>
+<li>Agile Manifesto 4 คู่ค่า</li>
+<li>Scrum: roles 3, artifacts 3, events 5 (Planning, Daily, Review, Retro + Sprint ตัวกรอบ)</li>
+<li>Sprint = <strong>timebox ไม่เกิน 1 เดือน</strong> (Guide 2020 เลิกใช้กรอบ 2–4 สัปดาห์แบบตำราเก่า; ของจริงนิยม 1–2 สัปดาห์)</li>
+<li>Kanban = WIP limit + flow; XP = TDD/pair/CI</li>
+<li>Functional vs non-functional (ตัวอย่างทั้งคู่); story format + Given/When/Then</li>
+<li>Story points = relative; velocity ไม่ใช้เทียบทีม</li>
+<li>Semver MAJOR.MINOR.PATCH ความหมาย</li>
+</ul>
+
+</section>
+
+<section class="sec s3" id="s3">
+<h2>3. กับดักข้อสอบ</h2>
+<ul>
+<li>“Agile = ไม่มีเอกสาร/ไม่วางแผน” — ผิด; Agile ให้คุณค่ากับ working software มากกว่าเอกสาร แต่ยังต้องมีเท่าที่จำเป็น</li>
+<li>Scrum Master ไม่ใช่ project manager/เจ้านาย — เป็น facilitator/coach</li>
+<li>Daily ไม่ใช่รายงานความคืบหน้าถึงหัวหน้า — คือการ sync ทีม + วางแผนวัน</li>
+<li>Sprint Review (ดูของ/demo กับ stakeholder) vs Retrospective (ดูกระบวนการภายในทีม) — อย่าสลับ</li>
+<li>“Non-functional ทีหลังได้” — ผิด; ราคา/สถาปัตย์ตัดสินแต่ต้น (performance/security เป็นต้นทุนที่ฝัง)</li>
+<li>Story points ไม่เทียบข้ามทีม (คนละ yardstick)</li>
+</ul>
+
+</section>
+
+<section class="sec s4" id="s4">
+<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<details><summary>Q1: SDLC มีเฟสอะไรบ้าง</summary>A: Requirements → Design → Implementation → Testing → Deployment → Maintenance (ทำซ้ำได้ใน agile)</details>
+<details><summary>Q2: Agile Manifesto 4 คุณค่า</summary>A: คน&ปฏิสัมพันธ์ > กระบวนการ&เครื่องมือ; ซอฟต์แวร์ทำงานได้ > เอกสารครบ; ร่วมมือลูกค้า > เจรจาสัญญา; ตอบการเปลี่ยนแปลง > ทำตามแผน</details>
+<details><summary>Q3: Scrum มี roles/artifacts/events อะไรบ้าง</summary>A: Roles: PO, SM, Developers · Artifacts: Product Backlog, Sprint Backlog, Increment · Events: Sprint, Planning, Daily, Review, Retrospective</details>
+<details><summary>Q4: Kanban ใช้เมื่อไร ต่างจาก Scrum ยังไง</summary>A: งานไหลต่อเนื่อง/หลากหลาย (support, ops) — ไม่มี sprint/timebox, เด่นที่ WIP limit และ lead time; Scrum มี timebox + roles/events ชัด</details>
+<details><summary>Q5: “ระบบรองรับผู้ใช้พร้อมกัน 500 คน” เป็น requirement ชนิดไหน</summary>A: Non-functional (performance/scale) — ระบุคุณภาพ ไม่ใช่ฟังก์ชัน; ฟังก์ชันจะแนว “ทำอะไรได้”</details>
+<details><summary>Q6: Story points ต่างจากชั่วโมงยังไง และทำไมไม่เทียบข้ามทีม</summary>A: Points วัดขนาดแบบสัมพัทธ์ของทีมนั้น (relative sizing) ไม่ผูกเวลา — สเกลของแต่ละทีมไม่เหมือนกัน เทียบข้ามทีมจึงไร้ความหมาย</details>
+<details><summary>Q7: Semver บอกอะไร: 2.4.1 → 3.0.0</summary>A: MAJOR ขยับ = มี breaking change; MINOR = ฟีเจอร์ใหม่ compatible; PATCH = แก้บั๊ก — ผู้ใช้ต้องอ่าน/ทดสอบก่อนอัป major</details>
+
+</section>
+
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> Agile 4 ค่า · Scrum 3-3-5 · Semver MAJOR.MINOR.PATCH</div>
+
+<nav>ก่อนหน้า: <a href="12-ai-agents-harness.html">12 · Agents / Harness</a> · ถัดไป: <a href="14-ai-llm.html">14 · AI: LLM</a></nav>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Software Design</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="sheet t02">
+<main>
+
+<div class="topbar">
+<a class="brand" href="../index.html">← แผน 30 วัน</a>
+<nav class="jump">
+<a href="#s1">เข้าใจ</a><a href="#s2">ต้องจำ</a><a href="#s3">กับดัก</a><a href="#s4">Self-check</a>
+</nav>
+</div>
+<header class="hero">
+<h1><span class="num">02</span> · Software Design</h1>
+<p class="source">อ่าน ~35 นาที · อ้างอิงหลัก: refactoring.guru (patterns), Clean Architecture (Martin), DDD (Evans)</p>
+</header>
+
+<section class="sec s1" id="s1">
+<h2>1. ต้องเข้าใจ</h2>
+
+<h3>เป้าหมายของการออกแบบ</h3>
+<ul>
+<li>ลด <strong>coupling</strong> (การพึ่งพากันระหว่างโมดูล) + เพิ่ม <strong>cohesion</strong> (แต่ละโมดูลทำเรื่องเดียวที่เกี่ยวกัน) — นี่คือคำตอบของโจทย์ design เกือบทุกข้อ</li>
+<li>ออกแบบเพื่อ “แก้ไขได้” ไม่ใช่เพื่อ “สวย” — โค้ดจะถูกอ่านและแก้มากกว่าถูกเขียน</li>
+<li><strong>Composition over inheritance</strong> — ประกอบพฤติกรรมด้วย object composition ยืดหยุ่นกว่า inherit ลึกๆ</li>
+</ul>
+
+<h3>SOLID (ท่องให้ได้ทุกตัว)</h3>
+<table>
+<thead><tr><th>ตัว</th><th>ชื่อ</th><th>ใจความ</th><th>อาการที่ละเมิด</th></tr></thead>
+<tbody>
+<tr><td>S</td><td>Single Responsibility</td><td>คลาสมีเหตุผลเดียวที่จะต้องถูกแก้ (one reason to change)</td><td>คลาสเดียวทำทั้ง DB + คำนวณ + ส่งอีเมล</td></tr>
+<tr><td>O</td><td>Open/Closed</td><td>เปิดให้ขยาย ปิดไม่ให้แก้ (เพิ่มความสามารถด้วยโค้ดใหม่)</td><td>ทุกครั้งที่เพิ่ม type ต้องแก้ if/else chain เดิม</td></tr>
+<tr><td>L</td><td>Liskov Substitution</td><td>คลาสลูกต้องแทนที่คลาสแม่ได้โดยไม่พังความถูกต้อง</td><td>Square extends Rectangle แล้วเปลี่ยน behavior (getArea ผิด)</td></tr>
+<tr><td>I</td><td>Interface Segregation</td><td>หลาย interface เล็ก ดีกว่า interface ใหญ่ที่บังคับให้ implement ของที่ไม่ใช้</td><td>interface 20 เมธอด แต่คลาสใช้จริง 2</td></tr>
+<tr><td>D</td><td>Dependency Inversion</td><td>พึ่ง abstraction ไม่พึ่ง implementation (high-level ไม่รู้จัก low-level)</td><td>Service new MySQLRepo() ตรงๆ แทน inject interface</td></tr>
+</tbody>
+</table>
+
+<h3>หลักการเพื่อนบ้าน</h3>
+<ul>
+<li><strong>DRY</strong> — อย่าเขียนความรู้เดิมซ้ำ (แต่ระวัง over-DRY: โค้ดเหมือนกันเพราะบังเอิญ ≠ duplication ที่ต้องรวม)</li>
+<li><strong>KISS / YAGNI</strong> — ทำให้ง่าย / อย่าสร้างสิ่งที่ “อาจจะได้ใช้” (ข้อสอบชอบให้ pattern ที่ไม่จำเป็น เป็นกับดัก)</li>
+<li><strong>SoC</strong> (Separation of Concerns) — แยก concern เช่น UI / business logic / data</li>
+</ul>
+
+<h3>Design patterns ที่ต้องรู้ชื่อ + แก้ปัญหาอะไร</h3>
+<ul>
+<li><strong>Creational:</strong> Factory Method (สร้างโดยไม่ผูกคลาสจริง), Abstract Factory (family ของ object), Builder (ประกอบทีละขั้น), Singleton (instance เดียว — ระวัง test ยาก/global state), Prototype (โคลน)</li>
+<li><strong>Structural:</strong> Adapter (แปลง interface ให้เข้ากัน), Decorator (ห่อเพิ่มพฤติกรรมโดยไม่แก้เดิม), Facade (หน้าเรียบง่ายปิด subsystem), Proxy (แทนตัวจริง คุมการเข้าถึง), Composite (ต้นไม้ของส่วน/ทั้งหมด), Bridge (แยก abstraction จาก implementation)</li>
+<li><strong>Behavioral:</strong> Strategy (สลับ algorithm), Observer (pub/sub แจ้งผู้ฟัง), Command (ห่อคำขอเป็น object — undo ได้), State (เปลี่ยนพฤติกรรมตาม state เครื่องจักร), Template Method (โครงในคลาสแม่ ช่องให้ลูกเติม), Iterator, Chain of Responsibility</li>
+<li>ข้อสอบที่ออกบ่อย: ให้สถานการณ์มา ถามว่าใช้ pattern ไหน — จำคีย์เวิร์ด: “สลับได้ runtime” = Strategy; “แจ้งหลายฝ่ายอัตโนมัติ” = Observer; “สร้างโดยไม่รู้ concrete class” = Factory; “เพิ่มความสามารถซ้อนได้” = Decorator; “interface ไม่เข้ากัน” = Adapter</li>
+</ul>
+
+<h3>Architecture</h3>
+<ul>
+<li><strong>Layered</strong> — presentation / application / domain / infrastructure; ข้อเสียถ้าไล่พึ่งกันลงล่างตรงๆ = domain ผูกกับ DB</li>
+<li><strong>Hexagonal (Ports &amp; Adapters)</strong> — แกนกลาง business logic ไม่รู้จักโลกภายนอก; ติดต่อผ่าน port (interface) และ adapter (implementation)</li>
+<li><strong>Clean Architecture</strong> — ชั้นซ้อนกัน, <strong>dependency rule: พุ่งเข้าหาแกนกลางเสมอ</strong>; ข้างในไม่รู้จัก framework/DB/UI</li>
+<li><strong>ข้อโต้แย้ง:</strong> microservices ให้ independent deploy/scale แต่เพิ่ม network/ops/consistency complexity — เริ่ม monolith แบบ modular ก่อนได้</li>
+</ul>
+
+<h3>DDD พื้นฐาน</h3>
+<ul>
+<li><strong>Entity</strong> — มี identity ตามเวลา; <strong>Value Object</strong> — ไม่มี identity เปรียบเทียบกันที่ค่า (Money, Email)</li>
+<li><strong>Aggregate</strong> — กลุ่ม entity ที่ต้องสอดคล้องกันใน transaction เดียว, แก้ผ่าน root เดียว (Aggregate Root)</li>
+<li><strong>Bounded Context</strong> — ขอบเขตที่คำๆ หนึ่งมีความหมายเฉพาะ (คำว่า “ลูกค้า” คนละโมเดลใน Sales vs Support)</li>
+<li><strong>Ubiquitous Language</strong> — คุยกับ domain expert ด้วยภาษาเดียวที่ใช้ในโค้ด</li>
+<li><strong>CQRS</strong> — แยกโมเดลอ่าน/เขียน; <strong>Event Sourcing</strong> — เก็บลำดับ event เป็น source of truth แล้วสร้าง state จาก replay</li>
+</ul>
+
+<h3>API design (REST)</h3>
+<ul>
+<li>Resource + HTTP verb: GET อ่าน, POST สร้าง (ไม่ idempotent), PUT แทนที่ทั้งก้อน (idempotent), PATCH แก้บางส่วน, DELETE ลบ (idempotent)</li>
+<li><strong>Status:</strong> 200 OK, 201 Created, 204 No Content, 400 Bad Request, 401 Unauthenticated, 403 Forbidden, 404 Not Found, 409 Conflict, 422 Validation, 429 Too Many Requests, 500 Internal, 503 Unavailable</li>
+<li>Versioning (/v1), pagination, error body มี structure เดียวกัน, list filter เป็น query param</li>
+</ul>
+
+</section>
+
+<section class="sec s2" id="s2">
+<h2>2. ต้องจำ</h2>
+<ul>
+<li><strong>SOLID</strong> ตามตารางด้านบน + หนึ่งบรรทัดต่อตัว (เขียนอธิบายจากความจำได้)</li>
+<li><strong>Coupling ↓ Cohesion ↑</strong></li>
+<li><strong>Clean Architecture dependency rule</strong> — พุ่งเข้าในเสมอ</li>
+<li><strong>Pattern keyword map:</strong> Strategy=สลับ algorithm · Observer=แจ้งหลายฝ่าย · Factory=สร้างโดยซ่อน concrete · Decorator=ห่อเพิ่มพฤติกรรม · Adapter=แปลง interface · Facade=หน้าเดียวปิดระบบ · Singleton=เดียวทั้งระบบ · Command=คำขอเป็น object</li>
+<li><strong>Entity vs Value Object</strong> — identity vs value</li>
+<li><strong>Semver:</strong> MAJOR = breaking, MINOR = เพิ่มแบบ compatible, PATCH = fix</li>
+</ul>
+
+</section>
+
+<section class="sec s3" id="s3">
+<h2>3. กับดักข้อสอบ</h2>
+<ul>
+<li>“Open/Closed” ไม่ได้แปลว่า “ห้ามแก้โค้ดเลย” — แปลว่าเพิ่มฟีเจอร์ใหม่ด้วยการ “เพิ่มโค้ด” มากกว่าไปแก้ logic เดิม</li>
+<li>Square/Rectangle เป็นตัวอย่างข้อสอบ LSP ยอดนิยม — ต้องอธิบายว่าทำไมแทนที่แล้วพัง</li>
+<li>Factory Method กับ Abstract Factory ต่างกัน: อันแรกสร้าง “หนึ่งผลิตภัณฑ์” อันหลังสร้าง “ตระกูลผลิตภัณฑ์”</li>
+<li>Singleton ไม่ใช่ pattern ที่ควรชู — ในข้อสอบเชิงวิพากษ์ให้บอกข้อเสีย (global state, ซ่อน dependency, test ยาก)</li>
+<li>“inherit เพื่อ reuse” ผิดหลัก — reuse ด้วย composition; inherit เมื่อความสัมพันธ์เป็น “is-a” จริงเท่านั้น</li>
+</ul>
+
+</section>
+
+<section class="sec s4" id="s4">
+<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<details><summary>Q1: อธิบาย SOLID ครบ 5 ตัวในหนึ่งประโยคต่อตัว</summary>A: S=เหตุผลเดียวในการแก้; O=ขยายได้โดยไม่แก้เดิม; L=คลาสลูกแทนที่แม่ได้; I=interface เล็กตามผู้ใช้; D=พึ่ง abstraction ไม่พึ่ง concrete</details>
+<details><summary>Q2: Coupling กับ cohesion คืออะไร ทิศทางที่ดี</summary>A: Coupling=การพึ่งพาระหว่างโมดูล (อยากได้น้อย); cohesion=ความเกี่ยวเนื่องภายในโมดูล (อยากได้มาก)</details>
+<details><summary>Q3: Dependency Rule ของ Clean Architecture คืออะไร</summary>A: dependency ต้องพุ่งเข้าหาชั้นใน (business core) เสมอ — ชั้นในไม่รู้จัก framework/DB/UI</details>
+<details><summary>Q4: Strategy ต่างจาก State ยังไง</summary>A: Strategy เปลี่ยน algorithm ที่ใช้ (มักเลือกจากนอก), State เปลี่ยนพฤติกรรมตาม internal state และ state เปลี่ยนตัวเองได้ตาม transition</details>
+<details><summary>Q5: Square extends Rectangle ละเมิดหลักอะไร ทำไม</summary>A: LSP — โค้ดที่ใช้ Rectangle ส่ง setWidth/setHeight อิสระจะพังเมื่อเป็น Square (พฤติกรรมเปลี่ยนไป)</details>
+<details><summary>Q6: Entity กับ Value Object ต่างกันที่อะไร</summary>A: Entity มี identity (id เดิม = ตัวเดิม แม้ attribute เปลี่ยน), Value Object เท่ากันที่ค่า — เปลี่ยนค่า = คนละค่า ใช้แทนกันได้เลย</details>
+<details><summary>Q7: เมื่อไรเลือก monolith แทน microservices</summary>A: ทีมเล็ก/ยังไม่ชัดขอบเขต domain/ไม่ต้องการ scale แยกส่วน — เพราะ microservices เพิ่ม network latency, distributed transaction, ops burden</details>
+
+</section>
+
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> SOLID 5 ตัว + keyword pattern map + dependency rule (พุ่งเข้าใน)</div>
+
+<nav>ก่อนหน้า: <a href="01-database-sql.html">01 · Database / SQL</a> · ถัดไป: <a href="03-security-secure-dev.html">03 · Security</a></nav>
+
+</main>
+</body>
+</html>

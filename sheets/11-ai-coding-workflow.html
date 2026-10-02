@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 · AI: Coding Workflow</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="sheet t11">
+<main>
+
+<div class="topbar">
+<a class="brand" href="../index.html">← แผน 30 วัน</a>
+<nav class="jump">
+<a href="#s1">เข้าใจ</a><a href="#s2">ต้องจำ</a><a href="#s3">กับดัก</a><a href="#s4">Self-check</a>
+</nav>
+</div>
+<header class="hero">
+<h1><span class="num">11</span> · AI Fundamental: Coding Workflow</h1>
+<p class="source">อ่าน ~35 นาที · อ้างอิงหลัก: Anthropic — Claude Code best practices; GitHub — spec-driven development; Google DORA 2024 report (AI adoption)</p>
+</header>
+
+<section class="sec s1" id="s1">
+<h2>1. ต้องเข้าใจ</h2>
+
+<h3>หลักคิดตั้งต้น</h3>
+<ul>
+<li>LLM ในงานเขียนโค้ด = “เพื่อนร่วมงานที่เร็วมาก แต่เพิ่งวันแรกในโปรเจกต์ทุกวัน” — รู้ภาษาและ pattern ทั่วไป แต่ไม่รู้ codebase, convention, ข้อตกลงของทีม → <strong>หน้าทีคุณคือให้ context และ verify</strong></li>
+<li>ความเสี่ยงหลักของ AI coding ตาม DORA: เพิ่ม throughput แต่ก็เพิ่ม <strong>instability</strong> ถ้าไม่มี test/review pipeline รองรับ — workflow ที่ดีจะไปด้วยกันกับ CI/CD คุณภาพสูง</li>
+<li>กฎเหล็ก: <strong>“ยังไม่รัน = ยังไม่เสร็จ”</strong> — ผลลัพธ์ต้องผ่าน test/build จริง ไม่ใช่คำอธิบายว่าควรจะผ่าน</li>
+</ul>
+
+<h3>Loop การทำงานที่แนะนำ (จำแล้วใช้ตอบได้)</h3>
+<ol>
+<li><strong>Understand —</strong> ให้ agent สำรวจ/สรุปโค้ดที่เกี่ยวข้องก่อน (อ่านไฟล์จริง ไม่เดา); ถ้า task ใหญ่ ใช้ subagent สำรวจ</li>
+<li><strong>Plan / Spec —</strong> เขียนแผนสั้นๆ หรือ spec: ต้องทำอะไร, ที่ไฟล์ไหน, acceptance criteria, test ที่จะเขียน — ให้คนอนุมัติแผนก่อนลงมือ (สำคัญสุดต่อคุณภาพ)</li>
+<li><strong>Implement (small steps) —</strong> ทำทีละส่วนเล็กที่ review ได้; diff ใหญ่ = review แย่ = bug หลุด</li>
+<li><strong>Verify —</strong> รัน test, build, lint, รันจริงดู behavior; ทดสอบ edge case ที่ AI มองข้าม (null, ขอบเขตตัวเลข, permission)</li>
+<li><strong>Review —</strong> อ่าน diff ทุกบรรทัด เหมือน review คน — เพราะเราเป็นเจ้าของโค้ดที่ merge</li>
+<li><strong>Commit —</strong> atomic commit + message อธิบาย; ผูกกับ issue/PR</li>
+</ol>
+
+<h3>Spec-driven development</h3>
+<ul>
+<li>เขียน spec/acceptance criteria <strong>ก่อน</strong>ให้ AI ลงมือ — spec = สัญญาที่ใช้ตรวจได้ทั้ง “ก่อนสร้าง” และ “หลังสร้าง”</li>
+<li>แยกงานใหญ่เป็น task ย่อยที่มีคำตอบชัด (ดีกว่า mega prompt ยาวๆ) — ให้ demo/test ได้ทีละส่วน</li>
+<li>ใช้ <strong>rules file</strong> ของโปรเจกต์ (AGENTS.md / CLAUDE.md / .cursorrules) เก็บ: คำสั่ง build/test, สไตล์, convention ตั้งชื่อ, สิ่งที่ห้าม — ลดการอธิบายซ้ำทุก session</li>
+</ul>
+
+<h3>การจัดการ context ในการเขียนโค้ด</h3>
+<ul>
+<li>เปิดเฉพาะไฟล์ที่เกี่ยวข้อง; session สั้นต่อ 1 task (context ยาว = คุณภาพตก + เปลือง)</li>
+<li>เมื่อ context เกือบเต็ม: สรุปงานค้างเป็น spec/handoff แล้วเริ่ม session ใหม่ (compaction); อย่าให้ agent ทำงานต่อด้วยความจำที่พร่ามัว</li>
+<li>บอก constraints จริง: ภาษา/เวอร์ชัน, framework, ห้ามเพิ่ม dependency ใหม่, ต้องเข้ากับ style เดิม — AI ที่ไม่รู้ข้อจำกัดจะเลือกโซลูชันสวยแต่ใช้งานไม่ได้</li>
+</ul>
+
+<h3>Test กับ AI — TDD-enhanced</h3>
+<ul>
+<li>ให้เขียน test จาก spec ก่อน (หรือคนเขียน) → AI ทำโค้ดให้เขียว → refactor — เทสต์คือ safety net สำหรับ “โค้ดที่ AI ผลิตเร็วเกินจะเชื่อ”</li>
+<li>เขียน regression test ทุกครั้งที่แก้ bug: ก่อนแก้สร้าง test ที่พัง (พิสูจน์ว่าเจอ bug จริง) → แก้ → test เขียว + suite เดิมไม่พัง</li>
+<li>ระวัง AI “แก้ทดสอบให้ผ่าน” แทน “แก้โค้ดให้ถูก” — review test diff เข้มเท่า production code</li>
+</ul>
+
+<h3>ความเสี่ยงที่ต้องคุมใน workflow</h3>
+<ul>
+<li><strong>Hallucinated API/package</strong> — ไลบรารีหรือฟังก์ชันที่ไม่มีจริง (หรือเป็นชื่อ package ปลอมใน registry = supply chain risk) → ตรวจกับเอกสารจริงก่อนใช้; pin version</li>
+<li><strong>Prompt injection ผ่านไฟล์/หน้าเว็บ</strong> — comment ในโค้ด, ไฟล์ใน repo, เนื้อหาเว็บที่ agent อ่าน อาจมีคำสั่งซ่อน → อย่าให้ agent มีสิทธิกว้างเกิน (least privilege), ตรวจ action อันตราย (ลบไฟล์, ส่งข้อมูลออก)</li>
+<li><strong>Secrets หลุดเข้า context</strong> — ไฟล์ .env / คีย์ที่อ่านเข้าไปอาจไปโผล่ใน log ที่อื่น; ใช้ secret manager + กันไฟล์ลับด้วย .gitignore/.claudeignore</li>
+<li><strong>Attribution &amp; license</strong> — โค้ดจากโมเดลอาจคล้ายของมีลิขสิทธิ์ — นโยบายบริษัทเป็นตัวตัดสิน; commit message ควรบอกส่วนที่ AI ช่วย</li>
+</ul>
+
+<h3>วัดผลแบบมืออาชีพ</h3>
+<ul>
+<li>งานซ้ำ>1 ครั้ง → สร้าง <strong>eval</strong>: ชุดงานตัวอย่าง + เกณฑ์ผ่าน (test ผ่าน? diff ถูก pattern?) แล้ววัดก่อน/หลังเปลี่ยน prompt/skill</li>
+<li>ติดตาม: cycle time, change failure rate ของงานที่ AI ช่วยเทียบกับงานปกติ (ไม่ใช่แค่ “รู้สึกเร็วขึ้น”)</li>
+</ul>
+
+</section>
+
+<section class="sec s2" id="s2">
+<h2>2. ต้องจำ</h2>
+<ul>
+<li><strong>Loop: Understand → Plan → Implement (small) → Verify → Review → Commit</strong></li>
+<li>“ยังไม่รัน = ยังไม่เสร็จ”</li>
+<li>Spec/rules file ก่อนเริ่ม: AGENTS.md/CLAUDE.md เก็บคำสั่ง build/test + convention</li>
+<li>TDD กับ AI: test ก่อน → เขียว → refactor; bug → regression test ก่อนแก้</li>
+<li>Risk 3 ตัวท่อง: hallucinated API/package · prompt injection จาก content · secrets หลุดเข้า context</li>
+<li>Diff เล็ก + review ทุกบรรทัด; AI ไม่ใช่ autopilot</li>
+</ul>
+
+</section>
+
+<section class="sec s3" id="s3">
+<h2>3. กับดักข้อสอบ</h2>
+<ul>
+<li>“ให้ AI ทำ one-shot ทั้งฟีเจอร์” — คำตอบแย่; ที่ถูกคือ decompose + verify ทีละขั้น</li>
+<li>“AI เขียนแล้ว build ผ่าน = เสร็จ” — ยังไม่เสร็จ; ต้อง test behavior + review</li>
+<li>“ให้ AI แก้ test ให้ผ่าน” — สัญญาณอันตราย (แก้ที่ข้อสอบแทนแก้ที่โค้ด)</li>
+<li>Prompt ยาวละเอียดไม่มีที่ติ = ดีเสมอ — ไม่จริง; ยาวเกิน context rot + ขัดกันเอง; ต้องมี spec/ตัวอย่างที่คม</li>
+<li>AI ช่วยแล้วไม่ต้อง review — ผิด; คนที่ merge คือคนรับผิดชอบ</li>
+</ul>
+
+</section>
+
+<section class="sec s4" id="s4">
+<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<details><summary>Q1: เล่า agentic coding loop ที่ดีเป็นขั้นๆ</summary>A: Understand (สำรวจโค้ดจริง) → Plan/spec + acceptance → Implement ทีละส่วนเล็ก → Verify (test/build/รันจริง) → Review diff ทุกบรรทัด → Commit atomic</details>
+<details><summary>Q2: ทำไม “ยังไม่รัน = ยังไม่เสร็จ”</summary>A: LLM อธิบายได้ดูถูกเสมอแม้โค้ดพัง — หลักฐานเดียวที่เชื่อได้คือ test/build/runtime จริงผ่าน; self-report ไม่ใช่หลักฐาน</details>
+<details><summary>Q3: Spec-driven development ช่วยอะไร</summary>A: เขียน spec + acceptance criteria ก่อนลงมือ → ใช้ตรวจทั้งก่อนและหลังสร้าง, ลดการตีความ, ทำให้ decompose งานได้ชัด และ AI ทำตามได้แม่นขึ้น</details>
+<details><summary>Q4: ยก 3 ความเสี่ยงหลักของ AI coding workflow</summary>A: (1) hallucinated API/package ปลอม (2) prompt injection จากไฟล์/เว็บที่ agent อ่าน (3) secrets/repo content หลุดเข้า context หรือ action เกินสิทธิ์</details>
+<details><summary>Q5: ถ้า context session ยาวมากจนเริ่มแย่ ควรทำอะไร</summary>A: สรุปงานค้าง/การตัดสินใจเป็น handoff หรือ spec แล้วเริ่ม session ใหม่ (compaction) — อย่าฝืนทำต่อด้วย context ที่เจือจาง</details>
+<details><summary>Q6: ทำไมต้องเขียน regression test ก่อนแก้ bug กับ AI</summary>A: พิสูจน์ว่า test จับ bug นั้นได้จริง (แดงก่อน) → แก้แล้วเขียว = ยืนยันว่าแก้ตรงจุด และกันกลับมาพังซ้ำ</details>
+<details><summary>Q7: “AI แก้ test ให้ผ่าน” ทำไมน่ากังวล</summary>A: เพราะมันรักษาความเขียวโดยลดความหมายของ test (ผ่อน assertion) แทนที่จะแก้โค้ดจริง — test diff ต้อง review เข้มเท่าโค้ด</details>
+
+</section>
+
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> loop 6 ขั้น · “ยังไม่รัน=ยังไม่เสร็จ” · risk 3 ตัว (hallucinated API / prompt injection / secrets)</div>
+
+<nav>ก่อนหน้า: <a href="10-docker-container.html">10 · Docker</a> · ถัดไป: <a href="12-ai-agents-harness.html">12 · Agents / Harness</a></nav>
+
+</main>
+</body>
+</html>
