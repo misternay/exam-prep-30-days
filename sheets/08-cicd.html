@@ -21,7 +21,7 @@
 </header>
 
 <section class="sec s1" id="s1">
-<h2>1. ต้องเข้าใจ</h2>
+<h2><span class="chip ic-book"></span>1. ต้องเข้าใจ</h2>
 
 <h3>CI (Continuous Integration)</h3>
 <ul>
@@ -88,7 +88,7 @@
 </section>
 
 <section class="sec s2" id="s2">
-<h2>2. ต้องจำ</h2>
+<h2><span class="chip ic-star"></span>2. ต้องจำ</h2>
 <ul>
 <li>CI = integrate+test อัตโนมัติทุก push; CD: <strong>Delivery = คนกด, Deployment = อัตโนมัติ</strong></li>
 <li>Pipeline stages เรียง: build → unit test → scan → package → deploy → smoke</li>
@@ -101,7 +101,7 @@
 </section>
 
 <section class="sec s3" id="s3">
-<h2>3. กับดักข้อสอบ</h2>
+<h2><span class="chip ic-warn"></span>3. กับดักข้อสอบ</h2>
 <ul>
 <li>“Continuous Delivery เหมือน Continuous Deployment” — ต่างกันที่คนกดหรือไม่</li>
 <li>“ต้อง build ใหม่สำหรับ prod เพื่อความมั่นใจ” — ผิด; ใช้ artifact เดิม (สิ่งที่ test คือสิ่งที่ deploy)</li>
@@ -113,7 +113,7 @@
 </section>
 
 <section class="sec s4" id="s4">
-<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
 <details><summary>Q1: CI คืออะไรและทำไมต้อง merge บ่อย</summary>A: Continuous Integration = รวมโค้ดกับ main บ่อยๆ + build/test อัตโนมัติทุกครั้ง — ลด integration bug และ merge conflict ใหญ่</details>
 <details><summary>Q2: Continuous Delivery ต่างจาก Continuous Deployment</summary>A: Delivery = ทุก commit ผ่าน pipeline พร้อมขึ้น prod เสมอ แต่คนตัดสินใจกด deploy; Deployment = ขึ้น prod อัตโนมัติทันทีที่ผ่าน gate</details>
 <details><summary>Q3: เล่า pipeline stages มาตรฐาน 6 ขั้น</summary>A: checkout → install/build → test (unit ก่อน) → static/security scan → package artifact → deploy env + smoke test (+promotion ต่อ env)</details>

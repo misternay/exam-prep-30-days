@@ -21,7 +21,7 @@
 </header>
 
 <section class="sec s1" id="s1">
-<h2>1. ต้องเข้าใจ</h2>
+<h2><span class="chip ic-book"></span>1. ต้องเข้าใจ</h2>
 
 <h3>Agent คืออะไร</h3>
 <ul>
@@ -86,7 +86,7 @@
 </section>
 
 <section class="sec s2" id="s2">
-<h2>2. ต้องจำ</h2>
+<h2><span class="chip ic-star"></span>2. ต้องจำ</h2>
 <ul>
 <li><strong>Agent = LLM + tools + loop</strong>; ReAct = Reason–Act สลับ</li>
 <li>โมเดล “ขอเรียก” tool — <strong>harness รันจริง</strong>แล้วป้อนผลกลับ</li>
@@ -99,7 +99,7 @@
 </section>
 
 <section class="sec s3" id="s3">
-<h2>3. กับดักข้อสอบ</h2>
+<h2><span class="chip ic-warn"></span>3. กับดักข้อสอบ</h2>
 <ul>
 <li>“โมเดลรัน tool เอง” — ผิด; โมเดลแค่ emit คำขอ — โค้ดฝั่งเราตัดสินใจรัน (และนี่คือจุดวาง guardrail)</li>
 <li>Agent ≠ workflow — workflow เดินตามเส้นทางที่กำหนด (deterministic) ส่วน agent ตัดสินใจเส้นทางเอง; งานง่ายควรใช้ workflow</li>
@@ -111,7 +111,7 @@
 </section>
 
 <section class="sec s4" id="s4">
-<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
 <details><summary>Q1: นิยาม agent 3 องค์ประกอบ</summary>A: LLM (สมอง) + Tools (มือทำ) + Loop (ตัดสินใจวนจากผลจริงจนจบงาน)</details>
 <details><summary>Q2: Function calling ทำงานยังไง ใครรันจริง</summary>A: โมเดล emit ชื่อ+args (JSON) → harness ตรวจ/รันจริง → ป้อนผลกลับเป็นข้อความ → โมเดลตัดสินใจต่อ — โมเดลไม่เคยรันเอง</details>
 <details><summary>Q3: Harness มีองค์ประกอบอะไรบ้าง</summary>A: system prompt/กติกา, tool registry+schema, loop controller (max steps/retry), context manager, permissions/approvals/sandbox, subagents, memory, observability, cost control</details>

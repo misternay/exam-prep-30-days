@@ -21,7 +21,7 @@
 </header>
 
 <section class="sec s1" id="s1">
-<h2>1. ต้องเข้าใจ</h2>
+<h2><span class="chip ic-book"></span>1. ต้องเข้าใจ</h2>
 
 <h3>Relational model &amp; keys</h3>
 <ul>
@@ -80,7 +80,7 @@
 </section>
 
 <section class="sec s2" id="s2">
-<h2>2. ต้องจำ</h2>
+<h2><span class="chip ic-star"></span>2. ต้องจำ</h2>
 <table>
 <thead><tr><th>Isolation level</th><th>Dirty read</th><th>Non-repeatable</th><th>Phantom</th></tr></thead>
 <tbody>
@@ -104,7 +104,7 @@
 </section>
 
 <section class="sec s3" id="s3">
-<h2>3. กับดักข้อสอบ</h2>
+<h2><span class="chip ic-warn"></span>3. กับดักข้อสอบ</h2>
 <ul>
 <li><code>WHERE</code> กับ aggregate (เช่น <code>WHERE COUNT(*)&gt;5</code>) — ผิด ต้องใช้ <code>HAVING</code></li>
 <li><code>COUNT(*)</code> vs <code>COUNT(col)</code> ต่างกันเมื่อมี NULL — ข้อสอบตัวเลขชอบหลอกตรงนี้</li>
@@ -117,7 +117,7 @@
 </section>
 
 <section class="sec s4" id="s4">
-<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
 <details><summary>Q1: ACID ย่อจากอะไร อธิบายแต่ละตัวสั้นๆ</summary>A: Atomicity (ทั้งหมดหรือไม่เลย), Consistency (constraint/valid state ยังถูก), Isolation (concurrent ไม่รบกวนกัน), Durability (commit แล้วอยู่จริง)</details>
 <details><summary>Q2: Non-repeatable read กับ phantom read ต่างกันยังไง</summary>A: Non-repeatable = อ่าน “แถวเดิม” ได้ค่าเปลี่ยน (UPDATE commit กลางทาง); phantom = ได้ “ชุดแถว” เปลี่ยน (INSERT/DELETE commit กลางทาง)</details>
 <details><summary>Q3: ทำไม composite index (a,b,c) ไม่ช่วย query WHERE b=1</summary>A: B-tree เรียงตาม a ก่อน — เข้าไม่ถึง b ได้ถ้าไม่รู้ a (leftmost prefix rule)</details>

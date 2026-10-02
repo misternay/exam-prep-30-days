@@ -21,7 +21,7 @@
 </header>
 
 <section class="sec s1" id="s1">
-<h2>1. ต้องเข้าใจ</h2>
+<h2><span class="chip ic-book"></span>1. ต้องเข้าใจ</h2>
 
 <h3>Container vs VM (คำถามเปิดคลาสสิก)</h3>
 <ul>
@@ -87,7 +87,7 @@ docker pull / docker push</pre>
 </section>
 
 <section class="sec s2" id="s2">
-<h2>2. ต้องจำ</h2>
+<h2><span class="chip ic-star"></span>2. ต้องจำ</h2>
 <ul>
 <li>Container = process + namespaces + cgroups แชร์ kernel; VM มี kernel เอง</li>
 <li>Image = layers read-only; container = + writable layer (หายเมื่องานลบ)</li>
@@ -101,7 +101,7 @@ docker pull / docker push</pre>
 </section>
 
 <section class="sec s3" id="s3">
-<h2>3. กับดักข้อสอบ</h2>
+<h2><span class="chip ic-warn"></span>3. กับดักข้อสอบ</h2>
 <ul>
 <li>“Container เก็บข้อมูลถาวรได้เอง” — ผิด; writable layer ตายกับ container → ใช้ volume</li>
 <li>แก้ Dockerfile แล้ว build ใหม่ช้าเพราะ cache เสีย — ตรวจลำดับ COPY (ก็อป source ก่อน install = ตาย)</li>
@@ -114,7 +114,7 @@ docker pull / docker push</pre>
 </section>
 
 <section class="sec s4" id="s4">
-<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
 <details><summary>Q1: Container ต่างจาก VM อย่างไร (กลไก + ผลกระทบ)</summary>A: container แชร์ kernel โฮสต์ ใช้ namespaces/cgroups กัก process — เบา เร็ว; VM มี kernel ตัวเอง — แยกขาดกว่าแต่หนัก. ผลพวง: container isolation อ่อนกว่า + ข้อมูลใน container ไม่ถาวร</details>
 <details><summary>Q2: ทำไมต้อง multi-stage build</summary>A: ให้ final image มีแค่ artifact + runtime ไม่พก toolchain/dependency ของขั้น build → image เล็กลง ปลอดภัยขึ้น</details>
 <details><summary>Q3: จัดลำดับ Dockerfile ยังไงให้ cache ทำงาน</summary>A: เอาคำสั่งที่ input เปลี่ยนน้อยอยู่ก่อน (base, deps manifest) คำสั่งที่เปลี่ยนบ่อย (COPY source) ไว้ท้าย — แก้โค้ดแล้วไม่ต้อง install deps ใหม่</details>

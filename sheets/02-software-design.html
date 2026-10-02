@@ -21,7 +21,7 @@
 </header>
 
 <section class="sec s1" id="s1">
-<h2>1. ต้องเข้าใจ</h2>
+<h2><span class="chip ic-book"></span>1. ต้องเข้าใจ</h2>
 
 <h3>เป้าหมายของการออกแบบ</h3>
 <ul>
@@ -84,7 +84,7 @@
 </section>
 
 <section class="sec s2" id="s2">
-<h2>2. ต้องจำ</h2>
+<h2><span class="chip ic-star"></span>2. ต้องจำ</h2>
 <ul>
 <li><strong>SOLID</strong> ตามตารางด้านบน + หนึ่งบรรทัดต่อตัว (เขียนอธิบายจากความจำได้)</li>
 <li><strong>Coupling ↓ Cohesion ↑</strong></li>
@@ -97,7 +97,7 @@
 </section>
 
 <section class="sec s3" id="s3">
-<h2>3. กับดักข้อสอบ</h2>
+<h2><span class="chip ic-warn"></span>3. กับดักข้อสอบ</h2>
 <ul>
 <li>“Open/Closed” ไม่ได้แปลว่า “ห้ามแก้โค้ดเลย” — แปลว่าเพิ่มฟีเจอร์ใหม่ด้วยการ “เพิ่มโค้ด” มากกว่าไปแก้ logic เดิม</li>
 <li>Square/Rectangle เป็นตัวอย่างข้อสอบ LSP ยอดนิยม — ต้องอธิบายว่าทำไมแทนที่แล้วพัง</li>
@@ -109,7 +109,7 @@
 </section>
 
 <section class="sec s4" id="s4">
-<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
 <details><summary>Q1: อธิบาย SOLID ครบ 5 ตัวในหนึ่งประโยคต่อตัว</summary>A: S=เหตุผลเดียวในการแก้; O=ขยายได้โดยไม่แก้เดิม; L=คลาสลูกแทนที่แม่ได้; I=interface เล็กตามผู้ใช้; D=พึ่ง abstraction ไม่พึ่ง concrete</details>
 <details><summary>Q2: Coupling กับ cohesion คืออะไร ทิศทางที่ดี</summary>A: Coupling=การพึ่งพาระหว่างโมดูล (อยากได้น้อย); cohesion=ความเกี่ยวเนื่องภายในโมดูล (อยากได้มาก)</details>
 <details><summary>Q3: Dependency Rule ของ Clean Architecture คืออะไร</summary>A: dependency ต้องพุ่งเข้าหาชั้นใน (business core) เสมอ — ชั้นในไม่รู้จัก framework/DB/UI</details>

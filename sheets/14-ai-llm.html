@@ -21,7 +21,7 @@
 </header>
 
 <section class="sec s1" id="s1">
-<h2>1. ต้องเข้าใจ</h2>
+<h2><span class="chip ic-book"></span>1. ต้องเข้าใจ</h2>
 
 <h3>LLM ทำงานยังไง (ระดับที่ต้องตอบได้)</h3>
 <ul>
@@ -91,7 +91,7 @@
 </section>
 
 <section class="sec s2" id="s2">
-<h2>2. ต้องจำ</h2>
+<h2><span class="chip ic-star"></span>2. ต้องจำ</h2>
 <ul>
 <li>LLM = next-token predictor บน Transformer + attention; ไม่มีฐานข้อเท็จจริงในตัวเอง</li>
 <li>3 ขั้นฝึก: <strong>Pretrain → SFT → RLHF/alignment</strong></li>
@@ -106,7 +106,7 @@
 </section>
 
 <section class="sec s3" id="s3">
-<h2>3. กับดักข้อสอบ</h2>
+<h2><span class="chip ic-warn"></span>3. กับดักข้อสอบ</h2>
 <ul>
 <li>“โมเดลค้นเว็บเองได้/จำการสนทนาได้เอง” — ผิด; ทุกอย่างมาจากสิ่งที่ระบบป้อนให้ (context/tool) หรือน้ำหนักที่ฝึกมา</li>
 <li>Temperature = 0 แล้วได้ผลเหมือนเดิม 100% — ไม่เป๊ะระดับฮาร์ดแวร์/ผู้ให้บริการ แต่แนวคิดคือ deterministic ที่สุด</li>
@@ -118,7 +118,7 @@
 </section>
 
 <section class="sec s4" id="s4">
-<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
 <details><summary>Q1: อธิบายการทำงานของ LLM หนึ่งย่อหน้าแบบที่เข้าใจจริง</summary>A: โมเดลทำนาย token ถัดไปจากบริบท (สถาปัตยกรรม Transformer + attention ถ่วงน้ำหนักความสำคัญของทุก token) ฝึกจากข้อความมหาศาล → เก่งภาษาตามรูปแบบสถิติ แต่ไม่มีฐานข้อเท็จจริงในตัว จึงต้องคิดเรื่อง hallucination เสมอ</details>
 <details><summary>Q2: 3 ขั้นตอนการฝึกโมเดลเรียงตามลำดับ</summary>A: 1) Pretraining ทำนาย token 2) SFT ทำตามคำสั่ง/ตัวอย่าง 3) RLHF/Preference alignment ให้ตอบที่มีประโยชน์-ปลอดภัยตามที่คนชอบ</details>
 <details><summary>Q3: Temperature กับ top-p ต่างกันยังไง</summary>A: temperature สเกลความ “คม/แบน” ของความน่าจะเป็นก่อนสุ่ม (สูง=หลากหลาย); top-p ตัดเฉพาะกลุ่มความน่าจะเป็นสะสมถึง p แล้วสุ่มในนั้น (ตัดหาง) — ใช้คุมความสุ่มคนละกลไก</details>

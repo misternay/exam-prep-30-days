@@ -21,7 +21,7 @@
 </header>
 
 <section class="sec s1" id="s1">
-<h2>1. ต้องเข้าใจ</h2>
+<h2><span class="chip ic-book"></span>1. ต้องเข้าใจ</h2>
 
 <h3>Context Engineering คืออะไร</h3>
 <ul>
@@ -40,7 +40,7 @@
 <h3>องค์ประกอบของ context ที่ต้องรู้จัก</h3>
 <ul>
 <li><strong>System prompt</strong> — persona, กติกา, convention, รูปแบบ output, ห้ามอะไร</li>
-<li><strong>Task prompt</strong> — สิ่งที่ต้องทำรอบนี้ ชัด ✅ เจาะจง + เกณฑ์สำเร็จ</li>
+<li><strong>Task prompt</strong> — สิ่งที่ต้องทำรอบนี้ ชัดและเจาะจง + มีเกณฑ์ความสำเร็จ</li>
 <li><strong>Few-shot examples</strong> — ตัวอย่าง input→output ที่ถูกต้อง แนะนำ 2–5 ตัว; ตัวอย่างดีกว่าคำอธิบาย</li>
 <li><strong>Retrieved context (RAG)</strong> — เอกสารที่ดึงมาใส่ให้โมเดลใช้ตอบ (ดูหัวข้อ RAG ด้านล่าง)</li>
 <li><strong>Tool results</strong> — ผลจาก API/ไฟล์/คำสั่ง ที่ป้อนกลับเข้า loop</li>
@@ -89,7 +89,7 @@
 </section>
 
 <section class="sec s2" id="s2">
-<h2>2. ต้องจำ</h2>
+<h2><span class="chip ic-star"></span>2. ต้องจำ</h2>
 <ul>
 <li>นิยาม: <strong>Context engineering = จัดการ “ทุกอย่างที่อยู่ใน context window” ให้เหมาะกับงาน</strong> ไม่ใช่แค่ข้อความสั่ง</li>
 <li><strong>Lost-in-the-middle</strong> — ต้น/ท้ายเด่น กลางจาง → วางของสำคัญหัว–ท้าย</li>
@@ -102,7 +102,7 @@
 </section>
 
 <section class="sec s3" id="s3">
-<h2>3. กับดักข้อสอบ</h2>
+<h2><span class="chip ic-warn"></span>3. กับดักข้อสอบ</h2>
 <ul>
 <li>“RAG แก้ hallucination ได้ 100%” — ผิด; ช่วยGround แต่ไม่การันตี (retrieval พลาด/โมเดลยังแต่งได้)</li>
 <li>“ใส่ context เยอะสุด = ดีสุด” — ผิด; มี cost, latency และ context rot</li>
@@ -114,7 +114,7 @@
 </section>
 
 <section class="sec s4" id="s4">
-<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
 <details><summary>Q1: Context engineering ต่างจาก prompt engineering ยังไง</summary>A: Prompt engineering ดูแค่ถ้อยคำคำสั่ง; context engineering ดูแลทุกอย่างที่ป้อนเข้าโมเดล (system, history, retrieved docs, tool output, ตัวอย่าง) ให้พอดี budget และจังหวะ</details>
 <details><summary>Q2: เล่า RAG pipeline เป็นขั้นๆ</summary>A: chunk เอกสาร → embed เป็น vector → เก็บใน vector DB → ตอนถาม retrieve top-k → (rerank) → ใส่เป็น context → โมเดล generate จากข้อมูลนั้น (อ้างอิงได้)</details>
 <details><summary>Q3: เมื่อไรควร RAG เมื่อไรควร fine-tune</summary>A: RAG เมื่อขาด “ความรู้” ใหม่/เฉพาะองค์กรหรือต้อง cite; fine-tune เมื่อต้องการ “พฤติกรรม/รูปแบบ” เฉพาะทางที่ prompting ล้วนทำไม่เสถียร</details>

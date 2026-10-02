@@ -21,7 +21,7 @@
 </header>
 
 <section class="sec s1" id="s1">
-<h2>1. ต้องเข้าใจ</h2>
+<h2><span class="chip ic-book"></span>1. ต้องเข้าใจ</h2>
 
 <h3>เป้าหมายความปลอดภัย</h3>
 <ul>
@@ -92,7 +92,7 @@
 </section>
 
 <section class="sec s2" id="s2">
-<h2>2. ต้องจำ</h2>
+<h2><span class="chip ic-star"></span>2. ต้องจำ</h2>
 <ul>
 <li><strong>OWASP Top 10:2025 เรียง A01→A10</strong> (ฉบับปัจจุบัน) — จำเพิ่ม 3 จุดเปลี่ยน: SSRF→A01 · A03=Supply Chain · A10=Exceptional Conditions (ใหม่); ยังต้องรู้ฉบับ 2021 เพราะตำราเก่าอ้างถึง</li>
 <li><strong>CIA</strong> = Confidentiality, Integrity, Availability</li>
@@ -105,7 +105,7 @@
 </section>
 
 <section class="sec s3" id="s3">
-<h2>3. กับดักข้อสอบ</h2>
+<h2><span class="chip ic-warn"></span>3. กับดักข้อสอบ</h2>
 <ul>
 <li>“เข้ารหัสด้วย MD5” ผิดทุกกรณี (MD5/SHA ไม่ใช่สำหรับ password); “hash อย่างเดียวไม่ salt” ก็ผิด</li>
 <li>XSS = ปัญหา “output encoding” ตอน render; SQLi = ปัญหา “แยกคำสั่งจากข้อมูล” — อย่าสลับกัน</li>
@@ -119,7 +119,7 @@
 </section>
 
 <section class="sec s4" id="s4">
-<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
 <details><summary>Q1: อธิบาย CIA triad</summary>A: Confidentiality — ข้อมูลเห็นได้เฉพาะผู้มีสิทธิ์; Integrity — ข้อมูลไม่ถูกแก้/ปลอมโดยไม่ได้รับอนุญาต; Availability — ระบบพร้อมใช้งาน</details>
 <details><summary>Q2: OWASP A01 (2025) คืออะไร ยกตัวอย่าง</summary>A: Broken Access Control — เช็คสิทธิ์ไม่ครบ/ทำเกินสิทธิ์ เช่น IDOR; ฉบับ 2025 SSRF ถูกยุบเข้ามารวมในหมวดนี้ด้วย</details>
 <details><summary>Q3: เก็บรหัสผ่านยังไงให้ถูก</summary>A: Hash ด้วย bcrypt/scrypt/Argon2 พร้อม per-user salt (ปรับ cost ได้), ห้าม plaintext/MD5/SHA เดี่ยว, เพิ่ม rate limiting</details>

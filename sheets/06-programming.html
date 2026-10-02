@@ -21,7 +21,7 @@
 </header>
 
 <section class="sec s1" id="s1">
-<h2>1. ต้องเข้าใจ</h2>
+<h2><span class="chip ic-book"></span>1. ต้องเข้าใจ</h2>
 
 <h3>โครงสร้างข้อมูล &amp; ความซับซ้อน (round 1)</h3>
 <table>
@@ -86,7 +86,7 @@
 </section>
 
 <section class="sec s2" id="s2">
-<h2>2. ต้องจำ</h2>
+<h2><span class="chip ic-star"></span>2. ต้องจำ</h2>
 <ul>
 <li>Big-O ของ: array access O(1), hash เฉลี่ย O(1), balanced BST O(log n), sorting เปรียบเทียบ O(n log n), binary search O(log n)</li>
 <li>Stack LIFO / Queue FIFO; BFS=queue, DFS=stack</li>
@@ -99,7 +99,7 @@
 </section>
 
 <section class="sec s3" id="s3">
-<h2>3. กับดักข้อสอบ</h2>
+<h2><span class="chip ic-warn"></span>3. กับดักข้อสอบ</h2>
 <ul>
 <li>Quick sort “แย่สุด O(n²) — ตอบให้ครบว่าทำไมดีกว่า merge ในบางบริบท (in-place/constant memory)”</li>
 <li>Hash table “O(1) เสมอ” — ผิด; เสมอคือ “เฉลี่ย”; worst = O(n) เมื่อ collision รุนแรง</li>
@@ -111,7 +111,7 @@
 </section>
 
 <section class="sec s4" id="s4">
-<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
 <details><summary>Q1: ค้นหาใน hash table และ balanced BST ต่างกันยังไง (เฉลี่ย/แย่สุด)</summary>A: hash เฉลี่ย O(1) แต่แย่สุด O(n) เมื่อ collision; balanced BST O(log n) ทั้งเฉลี่ยและแย่สุด + เป็นระเบียบเรียงได้</details>
 <details><summary>Q2: Merge sort กับ quick sort ต่างกันด้านไหนบ้าง</summary>A: merge = O(n log n) ทุกกรณี, stable, ใช้ memory O(n); quick = เฉลี่ย O(n log n) แย่ O(n²), in-place, ไม่ stable</details>
 <details><summary>Q3: Overload กับ override ต่างกัน</summary>A: overload = ชื่อเดียวกันคนละพารามิเตอร์ ตัดสินตอน compile; override = ลูกเขียนทับพฤติกรรมแม่ ตัดสินตอน runtime</details>

@@ -21,7 +21,7 @@
 </header>
 
 <section class="sec s1" id="s1">
-<h2>1. ต้องเข้าใจ</h2>
+<h2><span class="chip ic-book"></span>1. ต้องเข้าใจ</h2>
 
 <h3>โมเดลของ Git</h3>
 <ul>
@@ -84,7 +84,7 @@ git push / git pull   # sync กับ remote (pull = fetch + merge)</pre>
 </section>
 
 <section class="sec s2" id="s2">
-<h2>2. ต้องจำ</h2>
+<h2><span class="chip ic-star"></span>2. ต้องจำ</h2>
 <ul>
 <li>3 พื้นที่: working dir → staging → repo; HEAD/branch = pointer</li>
 <li><strong>reset vs revert:</strong> reset = เขียนประวัติทิ้ง/ย้าย pointer (local); revert = สร้าง commit กลับด้าน (shared ปลอดภัย)</li>
@@ -97,7 +97,7 @@ git push / git pull   # sync กับ remote (pull = fetch + merge)</pre>
 </section>
 
 <section class="sec s3" id="s3">
-<h2>3. กับดักข้อสอบ</h2>
+<h2><span class="chip ic-warn"></span>3. กับดักข้อสอบ</h2>
 <ul>
 <li>ถาม “undo commit ที่ push ไปแล้วบน main” → ตอบ <strong>revert</strong> ไม่ใช่ reset --hard</li>
 <li><code>reset --hard</code> ไม่ได้ “ผิดเสมอ” — ผิดเฉพาะบน shared/commit ที่ push (เขียนประวัติให้คนอื่นพัง)</li>
@@ -109,7 +109,7 @@ git push / git pull   # sync กับ remote (pull = fetch + merge)</pre>
 </section>
 
 <section class="sec s4" id="s4">
-<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
 <details><summary>Q1: อธิบาย 3 พื้นที่ของ Git</summary>A: Working directory (แก้ไฟล์อยู่), Staging/index (เลือกไว้จะ commit), Repository (commits + history) — git add ย้าย 1→2, git commit ย้าย 2→3</details>
 <details><summary>Q2: reset กับ revert ต่างกันเมื่อไรใช้อะไร</summary>A: reset ย้าย branch pointer/เขียนประวัติ — ใช้กับงาน local ที่ยังไม่แชร์; revert สร้าง commit ใหม่กลับด้านของ commit เป้าหมาย — ใช้กับ branch ที่ push/แชร์แล้ว</details>
 <details><summary>Q3: ทำไมห้าม rebase commit ที่ push แล้ว</summary>A: rebase เขียน commit เป็นชุดใหม่ (hash เปลี่ยน) → สำเนาประวัติสองแบบชนกัน คนอื่นที่ดึงไปแล้วต้องแก้ chaos</details>

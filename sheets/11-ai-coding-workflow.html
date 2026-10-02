@@ -21,7 +21,7 @@
 </header>
 
 <section class="sec s1" id="s1">
-<h2>1. ต้องเข้าใจ</h2>
+<h2><span class="chip ic-book"></span>1. ต้องเข้าใจ</h2>
 
 <h3>หลักคิดตั้งต้น</h3>
 <ul>
@@ -78,7 +78,7 @@
 </section>
 
 <section class="sec s2" id="s2">
-<h2>2. ต้องจำ</h2>
+<h2><span class="chip ic-star"></span>2. ต้องจำ</h2>
 <ul>
 <li><strong>Loop: Understand → Plan → Implement (small) → Verify → Review → Commit</strong></li>
 <li>“ยังไม่รัน = ยังไม่เสร็จ”</li>
@@ -91,7 +91,7 @@
 </section>
 
 <section class="sec s3" id="s3">
-<h2>3. กับดักข้อสอบ</h2>
+<h2><span class="chip ic-warn"></span>3. กับดักข้อสอบ</h2>
 <ul>
 <li>“ให้ AI ทำ one-shot ทั้งฟีเจอร์” — คำตอบแย่; ที่ถูกคือ decompose + verify ทีละขั้น</li>
 <li>“AI เขียนแล้ว build ผ่าน = เสร็จ” — ยังไม่เสร็จ; ต้อง test behavior + review</li>
@@ -103,7 +103,7 @@
 </section>
 
 <section class="sec s4" id="s4">
-<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
 <details><summary>Q1: เล่า agentic coding loop ที่ดีเป็นขั้นๆ</summary>A: Understand (สำรวจโค้ดจริง) → Plan/spec + acceptance → Implement ทีละส่วนเล็ก → Verify (test/build/รันจริง) → Review diff ทุกบรรทัด → Commit atomic</details>
 <details><summary>Q2: ทำไม “ยังไม่รัน = ยังไม่เสร็จ”</summary>A: LLM อธิบายได้ดูถูกเสมอแม้โค้ดพัง — หลักฐานเดียวที่เชื่อได้คือ test/build/runtime จริงผ่าน; self-report ไม่ใช่หลักฐาน</details>
 <details><summary>Q3: Spec-driven development ช่วยอะไร</summary>A: เขียน spec + acceptance criteria ก่อนลงมือ → ใช้ตรวจทั้งก่อนและหลังสร้าง, ลดการตีความ, ทำให้ decompose งานได้ชัด และ AI ทำตามได้แม่นขึ้น</details>

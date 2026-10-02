@@ -21,7 +21,7 @@
 </header>
 
 <section class="sec s1" id="s1">
-<h2>1. ต้องเข้าใจ</h2>
+<h2><span class="chip ic-book"></span>1. ต้องเข้าใจ</h2>
 
 <h3>QA vs QC vs Testing (ศัพท์ที่ข้อสอบชอบแยก)</h3>
 <ul>
@@ -79,7 +79,7 @@
 </section>
 
 <section class="sec s2" id="s2">
-<h2>2. ต้องจำ</h2>
+<h2><span class="chip ic-star"></span>2. ต้องจำ</h2>
 <ul>
 <li>Pyramid: <strong>Unit เยอะ → Integration กลาง → E2E น้อย</strong> + เหตุผล (speed/cost/fragility)</li>
 <li><strong>TDD cycle RED-GREEN-REFACTOR</strong>; BDD = Given-When-Then</li>
@@ -92,7 +92,7 @@
 </section>
 
 <section class="sec s3" id="s3">
-<h2>3. กับดักข้อสอบ</h2>
+<h2><span class="chip ic-warn"></span>3. กับดักข้อสอบ</h2>
 <ul>
 <li>“Mock” กับ “Stub” สลับกันบ่อย: stub = ป้อนค่า, mock = ตรวจว่าถูกเรียกตามคาด — ตอบให้ตรงคำถามว่าให้ค่าหรือ verify</li>
 <li>“Coverage 100% แล้ว bug ไม่มี” — ผิดชัดเจน; ต้องพูดถึง assertion คุณภาพ + มิติอื่น</li>
@@ -104,7 +104,7 @@
 </section>
 
 <section class="sec s4" id="s4">
-<h2>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
+<h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
 <details><summary>Q1: อธิบาย test pyramid พร้อมเหตุผลแต่ละชั้น</summary>A: unit เยอะสุด — เร็ว/ถูก/isolate; integration กลาง — จับปัญหา wiring/contract; e2e น้อย — ใกล้ผู้ใช้จริงแต่ช้า flaky แพง จึงเก็บ critical path</details>
 <details><summary>Q2: TDD มี 3 ขั้นอะไรบ้าง</summary>A: RED — เขียนเทสต์พังก่อน; GREEN — โค้ดน้อยสุดให้ผ่าน; REFACTOR — ปรับโครงโดยเทสต์ยังผ่าน</details>
 <details><summary>Q3: Stub ต่างจาก mock</summary>A: stub ให้ค่าที่เตรียมไว้เพื่อให้โค้ดเดินต่อ; mock ตั้ง expectation ว่าต้องถูกเรียกแบบไหน แล้ว verify ว่าเกิดจริง (ตรวจ interaction)</details>
