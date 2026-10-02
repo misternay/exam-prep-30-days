@@ -69,7 +69,7 @@
 <h3>หน่วยความจำ &amp; กับดักภาษา</h3>
 <ul>
 <li><strong>Stack:</strong> ตัวแปร local/เรียกฟังก์ชัน เร็ว จำกัด ขนาด (ล้น = stack overflow) · <strong>Heap:</strong> object ทั้งหลาย โตได้ จัดการด้วย GC (หรือ manual)</li>
-<li><strong>Pass by value vs reference:</strong> primitive ส่งค่าคัดลอก; object ส่ง reference — ระวังฟังก์ชันแก้ object ที่ผู้เรียกถืออยู่ (มีผลข้างเคียง)</li>
+<li><strong>Pass by value vs reference:</strong> primitive คัดลอกค่า; object ส่ง “ค่า reference” (Java/Python = pass-by-value ของ reference) — ฟังก์ชัน mutate object ตัวจริงได้ แต่ rebind พารามิเตอร์ไม่กระทบตัวแปรผู้เรียก</li>
 <li><strong>Floating point:</strong> 0.1 + 0.2 ≠ 0.3 (binary ไม่แทนทศนิยมได้เป๊ะ) — เรื่องเงินใช้ decimal/integer สตางค์; ห้ามเทียบ == กับ float</li>
 <li><strong>Integer overflow</strong> — ล้นขอบแล้ววนค่ากลับ (เช่น int32 เกิน ~2.1×10⁹); ภาษา modern บางตัว throw</li>
 <li><strong>String immutable</strong> (Java/C#/Python) — ต่อสตริงในลูปด้วยตัวเดิมได้ของใหม่ทุกครั้ง → ใช้ builder/list join</li>

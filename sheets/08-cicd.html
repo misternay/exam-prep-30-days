@@ -77,12 +77,11 @@
 <li><strong>Environments</strong>: dev (นักพัฒนาทำงาน) → staging/UAT (เหมือน prod, ให้ QA) → prod; promotion ด้วย artifact เดิม</li>
 </ul>
 
-<h3>DORA 4 metrics (วัดความเร็ว+คุณภาพ)</h3>
+<h3>DORA metrics (วัดความเร็ว+คุณภาพ) — ปัจจุบัน 5 ตัว (เดิม Four Keys)</h3>
 <ul>
-<li><strong>Deployment frequency</strong> — ออกบ่อยแค่ไหน · <strong>Lead time for changes</strong> — commit→prod ใช้เวลานานแค่ไหน</li>
-<li><strong>Change failure rate</strong> — deploy แล้วมีปัญหากี่ % · <strong>MTTR</strong> — กลับมาใช้ได้เร็วแค่ไหนเมื่อพัง</li>
-<li>เร็ว 4 ตัวนี้ = ทีมระดับ elite (ตามงานวิจัย DORA)</li>
-<li><strong>อัปเดต:</strong> DORA ปี 2023 เปลี่ยนชื่อ MTTR → <em>failed deployment recovery time</em>; ปี 2024 เพิ่มตัวที่ 5 <em>deployment rework rate</em> — ข้อสอบส่วนใหญ่ยังใช้ “Four Keys” ชุดเดิม</li>
+<li><strong>5 metrics ปัจจุบัน:</strong> Deployment frequency · Change lead time · Failed deployment recovery time (ชื่อเดิม MTTR) · Change fail rate · Deployment rework rate (เพิ่มปี 2024)</li>
+<li><strong>Four Keys (ชุดเดิม 4 ตัว — ข้อสอบส่วนมากยังอ้างชุดนี้):</strong> Deployment frequency · Lead time for changes · Change failure rate · Time to Restore Service (MTTR)</li>
+<li>ทีม top performers ทำได้ดีทั้ง speed และ stability — ใช้ metrics เพื่อปรับปรุง ไม่ใช่จัดอันดับ/กดดันทีม</li>
 </ul>
 
 </section>
@@ -94,7 +93,7 @@
 <li>Pipeline stages เรียง: build → unit test → scan → package → deploy → smoke</li>
 <li><strong>Build once, deploy everywhere</strong> (artifact เดียว, ต่างที่ config)</li>
 <li>Strategies 5 ตัว + ข้อดีเสียสั้นๆ</li>
-<li>DORA 4: deploy frequency, lead time, change failure rate, MTTR (+ตัวที่ 5 rework rate เพิ่มปี 2024)</li>
+<li>DORA ปัจจุบัน 5 ตัว (เดิม Four Keys): deploy frequency · change lead time · failed deployment recovery time (MTTR เดิม) · change fail rate · rework rate</li>
 <li>Rollback ผูกกับ backward-compatible migration</li>
 </ul>
 
@@ -120,7 +119,7 @@
 <details><summary>Q4: “Build once, deploy everywhere” ทำไมสำคัญ</summary>A: สิ่งที่ test ผ่านคือ binary/image เดียวกับที่ขึ้น prod — ลดความเสี่ยง drift และประหยัดเวลา; env ต่างกันแค่ config/secrets</details>
 <details><summary>Q5: Canary กับ Blue-Green ต่างกันยังไง</summary>A: Blue-Green มีสอง environment เต็มสลับ traffic ทั้งหมด; Canary ปล่อย traffic ส่วนน้อยไปเวอร์ชันใหม่แล้วค่อยๆ เพิ่มตามผลตรวจ</details>
 <details><summary>Q6: ถ้า deploy มีปัญหากลาง prod ทางเลือกมีอะไรบ้าง</summary>A: Rollback ไป artifact เก่า (ต้องเตรียมไว้ + migration backward-compatible) หรือ fix-forward ด้วย hotfix; เลือกตามความรุนแรงและสถานะข้อมูล</details>
-<details><summary>Q7: DORA 4 metrics มีอะไรบ้าง</summary>A: Deployment frequency, Lead time for changes, Change failure rate, MTTR (Time to Restore Service) — ปัจจุบัน DORA เรียก “failed deployment recovery time” และเพิ่ม metric ที่ 5 (rework rate) ในปี 2024</details>
+<details><summary>Q7: DORA metrics ปัจจุบันมีอะไรบ้าง</summary>A: 5 ตัว = Deployment frequency · Change lead time · Failed deployment recovery time (เดิม MTTR) · Change fail rate · Deployment rework rate — ชุด Four Keys เดิม (4 ตัว ใช้ชื่อ MTTR) ยังถูกอ้างบ่อยในข้อสอบ</details>
 
 </section>
 

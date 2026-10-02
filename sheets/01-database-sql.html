@@ -109,7 +109,7 @@
 <li><code>WHERE</code> กับ aggregate (เช่น <code>WHERE COUNT(*)&gt;5</code>) — ผิด ต้องใช้ <code>HAVING</code></li>
 <li><code>COUNT(*)</code> vs <code>COUNT(col)</code> ต่างกันเมื่อมี NULL — ข้อสอบตัวเลขชอบหลอกตรงนี้</li>
 <li><code>LEFT JOIN</code> แล้วใส่เงื่อนไขของตารางขวาใน <code>WHERE</code> → กลายเป็น INNER JOIN โดยไม่ตั้งใจ (ต้องย้ายเงื่อนไขไป <code>ON</code>)</li>
-<li>Index (a,b) กับ query <code>WHERE b=…</code> — ตอบว่าไม่ใช้ leftmost</li>
+<li>Index (a,b) กับ query <code>WHERE b=…</code> — ปกติใช้ full benefit ของ leftmost prefix ไม่ได้ (คำตอบมาตรฐานข้อสอบ); บาง DB ใหม่มี skip scan ช่วยได้ในเงื่อนไขจำกัด (เช่น MySQL 8.0.13+)</li>
 <li>TRUNCATE = ไม่ log รายแถว / reset identity ได้ / เร็วกว่า DELETE; DELETE มี WHERE ได้, TRUNCATE ลบทั้งตาราง (DDL)</li>
 <li>DDL (CREATE/ALTER/DROP) vs DML (SELECT/INSERT/UPDATE/DELETE) vs DCL (GRANT/REVOKE) — ถ้าถามหมวด ให้ตอบเป๊ะ</li>
 </ul>

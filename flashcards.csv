@@ -34,7 +34,7 @@ JWT ประกอบด้วยอะไร,header.payload.signature — payl
 SQL Injection แก้ที่ไหน,Parameterized query / prepared statement (ไม่ใช่ต่อสตริงแล้ว escape),security
 XSS แก้ยังไง,Output encoding ตาม context + CSP + HttpOnly cookie,security
 CSRF แก้ยังไง,CSRF token + SameSite cookie + ตรวจ Origin,security
-OAuth2 flow ที่ควรใช้กับ web/mobile,Authorization Code + PKCE; Implicit ถูกยกเลิกแล้ว,security
+OAuth2 flow ที่ควรใช้กับ web/mobile,Authorization Code + PKCE; Implicit ยังอยู่ในสเปกเดิมแต่ deprecated (RFC 9700) ไม่แนะนำ,security
 STRIDE 6 ตัว,"Spoofing, Tampering, Repudiation, Information disclosure, DoS, Elevation of privilege",security
 IDOR คืออะไร,เปลี่ยน id ใน request แล้วเข้าถึงข้อมูลคนอื่นได้ (Broken Access Control) — แก้: เช็ค ownership ทุก object,security
 Shift left หมายถึง,ย้ายงานคุณภาพ/ความปลอดภัยไปทำตั้งแต่ design/code แรก — แก้ถูกกว่าและก่อนถึง prod,security
@@ -89,7 +89,7 @@ Pipeline stages มาตรฐานเรียง,checkout → install/build 
 Canary กับ Blue-Green ต่างกัน,Canary=ปล่อย traffic บาง % ไปเวอร์ชันใหม่แล้วค่อยขยาย; Blue-Green=สอง env เต็มสลับ traffic ทั้งหมด,cicd
 Rolling update คือ,ทยอยแทน instance ทีละชุด — ไม่มี downtime แต่ช่วงเปลี่ยนมีสองเวอร์ชัน,cicd
 Feature flag แยกอะไรออกจากอะไร,แยก release (เปิดฟีเจอร์) ออกจาก deploy (ขึ้นโค้ด) — ไม่ต้อง deploy เพื่อเปิด/ปิด,cicd
-DORA 4 metrics,"Deployment frequency, Lead time for changes, Change failure rate, MTTR",cicd
+DORA metrics ปัจจุบัน (เดิม Four Keys),"5 ตัว: deployment frequency; change lead time; failed deployment recovery time (เดิม MTTR); change fail rate; deployment rework rate",cicd
 พังกลาง prod ทางเลือกมีอะไร,Rollback ไป artifact เก่า หรือ fix-forward (hotfix) — ต้องมี rollback plan + migration backward-compatible,cicd
 ทำไม migration ต้อง backward-compatible,เพื่อให้สองเวอร์ชันโค้ดอยู่ร่วมช่วง rollout/rollback ได้ (expand→migrate→contract),cicd
 Secrets ใน CI ควรจัดการยังไง,"เก็บใน CI secret store/Vault, inject ตอนรัน, mask ใน log, ห้าม echo",cicd
@@ -109,7 +109,7 @@ Image กับ Container ต่างกัน,Image=template read-only เป�
 จัด Dockerfile ยังไงให้ cache ไม่พัง,คำสั่งเปลี่ยนน้อยบนสุด (base/deps manifest) เปลี่ยนบ่อยล่างสุด (COPY source) — แก้โค้ดไม่ต้อง install ใหม่,docker
 Multi-stage build ทำไม,final image เล็ก/ปลอดภัย — ไม่พก toolchain และ dev dependency ของขั้น build,docker
 ข้อมูลใน container หายเมื่อไร เก็บยังไง,หายเมื่อลบ container (writable layer); เก็บด้วย volume/bind mount หรือดัน state ไป DB/object storage,docker
-ENTRYPOINT vs CMD,ENTRYPOINT=คำสั่งหลักตายตัว; CMD=default ที่ override ได้ — ใช้คู่กัน CMD เป็น default args; ใช้ exec form,docker
+ENTRYPOINT vs CMD,ENTRYPOINT=executable หลัก แต่ override ได้ด้วย docker run --entrypoint; CMD=default command/args ที่ command line แทนได้ — ใช้คู่กัน CMD เป็น default args; ใช้ exec form,docker
 EXPOSE ทำอะไรจริงไหม,แค่ metadata/เอกสาร — ไม่ publish จริง; publish ด้วย -p host:container,docker
 ทำไมไม่ใช้ :latest ใน production,ไม่ reproducible — pull ได้ของใหม่ไม่รู้ตัว rollback ไม่ได้ ใช้ version tag/digest,docker
 docker exec ใช้ทำอะไร,เข้าไปรันคำสั่ง/เชลล์ใน container ที่กำลังรันอยู่,docker

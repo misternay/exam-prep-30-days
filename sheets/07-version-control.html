@@ -57,7 +57,7 @@ git push / git pull   # sync กับ remote (pull = fetch + merge)</pre>
 <tr><td><code>git commit --amend</code></td><td>แก้ commit ล่าสุด (message/ไฟล์) — เขียน hash ใหม่</td><td>ลืมไฟล์/พิมพ์ผิด (ยังไม่ push)</td></tr>
 <tr><td><code>git reset --soft</code></td><td>ย้าย branch pointer กลับ, เก็บ staged</td><td>รวม commit</td></tr>
 <tr><td><code>git reset --mixed</code> (default)</td><td>ย้าย pointer + unstage</td><td>แยก commit ใหม่</td></tr>
-<tr><td><code>git reset --hard</code></td><td>ย้าย pointer + ทิ้งการแก้ทั้งหมด</td><td>ระวัง! ข้อมูลหาย</td></tr>
+<tr><td><code>git reset --hard</code></td><td>ย้าย pointer + ทิ้ง staged/tracked changes</td><td>ระวัง! (untracked/ignored ไม่หาย)</td></tr>
 <tr><td><code>git revert &lt;sha&gt;</code></td><td>สร้าง commit ใหม่ที่ “กลับด้าน” ของ commit นั้น</td><td>undo บน shared branch (ปลอดภัย)</td></tr>
 <tr><td><code>git stash</code> / <code>stash pop</code></td><td>พักงานที่แก้ไว้ชั่วคราว</td><td>ต้องสลับงานกลางคัน</td></tr>
 <tr><td><code>git reflog</code></td><td>ประวัติการย้าย HEAD ทุกครั้ง</td><td>กู้ commit/branch ที่ reset หาย</td></tr>

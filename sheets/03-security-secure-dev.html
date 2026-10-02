@@ -60,7 +60,7 @@
 <li><strong>Authentication</strong> = “คุณคือใคร” (login, MFA, session) · <b>Authorization</b> = “คุณทำอะไรได้” (role/permission)</li>
 <li><strong>Session-based:</strong> server เก็บ state + cookie กับ session id (revoke ได้ทันที) · <strong>Token-based (JWT):</strong> stateless ตรวจที่ลายเซ็น — ข้อเสียคือ revoke ยาก → อายุสั้น + refresh token</li>
 <li><strong>JWT = header.payload.signature</strong> — payload เป็นแค่ Base64 (อ่านได้ ไม่ใช่การเข้ารหัส) ห้ามใส่ข้อมูลลับ; กับดักคลาสสิก: เซิร์ฟเวอร์เช็ค <code>alg</code> จาก token เอง (alg=none attack) → fix: กำหนด algorithm ที่ฝั่ง verify</li>
-<li><strong>OAuth2 = authorization framework</strong> (ให้สิทธิ์แอปเข้าถึงข้อมูล) ไม่ใช่ authentication ตัวมันเอง; roles: Resource Owner, Client, Authorization Server, Resource Server; flow ที่ควรใช้: <strong>Authorization Code + PKCE</strong> (web/mobile); Client Credentials = server-to-server; Implicit ถูกยกเลิกแล้ว</li>
+<li><strong>OAuth2 = authorization framework</strong> (ให้สิทธิ์แอปเข้าถึงข้อมูล) ไม่ใช่ authentication ตัวมันเอง; roles: Resource Owner, Client, Authorization Server, Resource Server; flow ที่ควรใช้: <strong>Authorization Code + PKCE</strong> (web/mobile); Client Credentials = server-to-server; Implicit = deprecated (RFC 9700) ไม่แนะนำให้ใช้</li>
 <li><strong>OIDC = ชั้น authentication บน OAuth2</strong> — ได้ ID token (JWT) บอกตัวตนผู้ใช้</li>
 <li><strong>Password storage:</strong> ห้าม plaintext / ห้าม MD5-SHA เดี่ยว; ใช้ <strong>bcrypt / scrypt / Argon2 + per-user salt</strong>; เพิ่ม rate limit, lockout, ไม่บอกว่า “user ไม่มี” vs “รหัสผิด” (user enumeration)</li>
 </ul>
@@ -124,7 +124,7 @@
 <details><summary>Q2: OWASP A01 (2025) คืออะไร ยกตัวอย่าง</summary>A: Broken Access Control — เช็คสิทธิ์ไม่ครบ/ทำเกินสิทธิ์ เช่น IDOR; ฉบับ 2025 SSRF ถูกยุบเข้ามารวมในหมวดนี้ด้วย</details>
 <details><summary>Q3: เก็บรหัสผ่านยังไงให้ถูก</summary>A: Hash ด้วย bcrypt/scrypt/Argon2 พร้อม per-user salt (ปรับ cost ได้), ห้าม plaintext/MD5/SHA เดี่ยว, เพิ่ม rate limiting</details>
 <details><summary>Q4: SQLi กับ XSS ต่างกันที่จุดไหน และแก้ต่างกันยังไง</summary>A: SQLi = input ปนเข้าไปเป็นคำสั่ง query (แก้: parameterized query); XSS = input ปนเข้าไปเป็น HTML/JS (แก้: output encoding + CSP)</details>
-<details><summary>Q5: Authorization Code + PKCE ใช้ทำอะไร ต่างจาก Implicit ยังไง</summary>A: flow ที่ปลอดภัยของ OAuth2 สำหรับ public client — แลก authorization code เป็น token; Implicit คืน token ตรงใน redirect (ถูกยกเลิกเพราะ token หลุดได้)</details>
+<details><summary>Q5: Authorization Code + PKCE ใช้ทำอะไร ต่างจาก Implicit ยังไง</summary>A: flow ที่ปลอดภัยของ OAuth2 สำหรับ public client — แลก authorization code เป็น token; Implicit คืน token ตรงใน redirect (deprecated/ไม่แนะนำ เพราะ token หลุดง่าย — RFC 9700)</details>
 <details><summary>Q6: STRIDE ใช้ทำอะไร</summary>A: Threat modeling — ไล่หาภัย 6 แบบ: Spoofing, Tampering, Repudiation, Information disclosure, DoS, Elevation of privilege</details>
 <details><summary>Q7: Shift-left หมายถึงอะไร ทำไม</summary>A: ย้ายงานตรวจความปลอดภัยไปทางซ้ายของ timeline (design/code แรกสุด) — ต้นทุนแก้ bug ถูกกว่ามากและไม่ติดไป prod</details>
 

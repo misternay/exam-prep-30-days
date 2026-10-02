@@ -27,12 +27,12 @@
 <ul>
 <li><strong>VM:</strong> มี kernel ของตัวเองในแต่ละเครื่อง → หนัก, บูตนาน, isolation แข็ง</li>
 <li><strong>Container:</strong> ใช้ kernel ร่วมของโฮสต์ — แค่ process ที่ถูกจำกัดด้วย <strong>namespaces</strong> (มองไม่เห็นกัน) + <strong>cgroups</strong> (จำกัด CPU/RAM) → เบา, เริ่มวินาที, portable</li>
-<li>ประโยคทอง: <em>“container ไม่ใช่ VM ขนาดเล็ก — มันคือ process ที่ถูกจองกรง”</em>; จุดนี้ส่งผลกับ security (แชร์ kernel → escape ได้ถ้าช่องโหว่ kernel) และ persistence (container ตาย → ไฟล์หาย)</li>
+<li>ประโยคทอง: <em>“container ไม่ใช่ VM ขนาดเล็ก — มันคือ process ที่ถูกจองกรง”</em>; จุดนี้ส่งผลกับ security (แชร์ kernel → escape ได้ถ้าช่องโหว่ kernel) และ persistence (container ถูกลบ → writable layer หาย; แค่หยุดรันข้อมูลยังอยู่)</li>
 </ul>
 
 <h3>Image &amp; Layer</h3>
 <ul>
-<li><strong>Image</strong> = template อ่านอย่างเดียว สร้างจาก Dockerfile เป็นชั้นๆ (<strong>layers</strong>) — แต่ละคำสั่งสร้าง layer; image = ชั้นที่ซ้อนกัน</li>
+<li><strong>Image</strong> = template อ่านอย่างเดียว สร้างจาก Dockerfile เป็นชั้นๆ (<strong>layers</strong>) — คำสั่งที่เปลี่ยน filesystem (RUN, COPY, ADD) สร้าง layer; คำสั่ง config (CMD, ENV, EXPOSE) เป็น metadata</li>
 <li><strong>Container</strong> = image + writable layer บนสุด (ตอนรัน); ลบ container → ชั้นเขียนหาย</li>
 <li><strong>Layer caching:</strong> Docker cache layer ที่ “อินพุตเหมือนเดิม” — เรียงคำสั่งให้ <em>ของที่เปลี่ยนบ่อยอยู่ท้าย</em> (COPY package.json → install deps → แล้วค่อย COPY source) ไม่งั้น cache พังทุกครั้งที่แก้โค้ด</li>
 <li><strong>Tag:</strong> <code>repo/name:tag</code> — ใช้ version จริง (1.4.2) หรือ digest สำหรับ production; <code>:latest</code> ลอยได้ = ไม่ reproducible (กับดักข้อสอบ)</li>
@@ -56,7 +56,7 @@ EXPOSE 3000               # เอกสารประกอบ (ไม่ไ�
 CMD ["node", "dist/server.js"]</pre>
 <ul>
 <li><strong>Best practices:</strong> base image เล็ก/ официальный, pin version, multi-stage, ไม่มี secret ใน image (ใช้ env/secret mount), <strong>.dockerignore</strong> ตัด node_modules/.git ออกก่อน COPY, RUN รวมคำสั่งที่เกี่ยวกัน (ลด layer), HEALTHCHECK สำหรับ orchestrator</li>
-<li><strong>ENTRYPOINT vs CMD:</strong> ENTRYPOINT = คำสั่งหลักตายตัว; CMD = default ที่ถูก override ได้จาก command line; ถ้าใช้คู่กัน CMD = default args ของ ENTRYPOINT — ใช้ <strong>exec form</strong> <code>["exe","arg"]</code> เสมอ (PID 1 รับ signal ถูก, ไม่มี shell zombie)</li>
+<li><strong>ENTRYPOINT vs CMD:</strong> ENTRYPOINT = executable หลัก (override ได้ด้วย <code>docker run --entrypoint</code>); CMD = default command/args ที่ command line แทนได้; ถ้าใช้คู่กัน CMD = default args ของ ENTRYPOINT — ใช้ <strong>exec form</strong> <code>["exe","arg"]</code> เสมอ (PID 1 รับ signal ถูก, ไม่มี shell zombie)</li>
 </ul>
 
 <h3>คำสั่งที่ต้องแม่น</h3>
@@ -95,7 +95,7 @@ docker pull / docker push</pre>
 <li>คำสั่งชุด run/ps/logs/exec/stop/rm + แยก run vs start</li>
 <li>ห้าม secret ใน image; ห้ามพึ่ง :latest ใน prod</li>
 <li>Volume vs bind mount — persist data นอก container</li>
-<li>ENTRYPOINT ตายตัว / CMD override ได้ / ใช้ exec form</li>
+<li>ENTRYPOINT = executable หลัก (override ผ่าน --entrypoint) / CMD = default ที่ command line แทนได้ / ใช้ exec form</li>
 </ul>
 
 </section>
@@ -119,7 +119,7 @@ docker pull / docker push</pre>
 <details><summary>Q2: ทำไมต้อง multi-stage build</summary>A: ให้ final image มีแค่ artifact + runtime ไม่พก toolchain/dependency ของขั้น build → image เล็กลง ปลอดภัยขึ้น</details>
 <details><summary>Q3: จัดลำดับ Dockerfile ยังไงให้ cache ทำงาน</summary>A: เอาคำสั่งที่ input เปลี่ยนน้อยอยู่ก่อน (base, deps manifest) คำสั่งที่เปลี่ยนบ่อย (COPY source) ไว้ท้าย — แก้โค้ดแล้วไม่ต้อง install deps ใหม่</details>
 <details><summary>Q4: ข้อมูลใน container หายเมื่อไร จะเก็บยังไง</summary>A: หายเมื่อ container ถูกลบ (writable layer); เก็บด้วย volume หรือ bind mount (และหรือดัน state ไป DB/object storage)</details>
-<details><summary>Q5: ENTRYPOINT กับ CMD ต่างกัน</summary>A: ENTRYPOINT คำสั่งหลักที่ตายตัวไม่ถูก override ง่าย; CMD ค่า default (คำสั่ง/args) ที่ผู้ใช้ override ได้ — ใช้คู่กัน = ENTRYPOINT + args default</details>
+<details><summary>Q5: ENTRYPOINT กับ CMD ต่างกัน</summary>A: ENTRYPOINT กำหนด executable หลัก (เปลี่ยนได้ด้วย docker run --entrypoint); CMD เป็น default command/args ที่ command line ปกติแทนได้ — ใช้คู่กัน = ENTRYPOINT + args default</details>
 <details><summary>Q6: ทำไม production ไม่ควรใช้ tag :latest</summary>A: ไม่ระบุเวอร์ชัน → pull ตอนไหนได้ของใหม่ไม่รู้ตัว, ไม่ reproducible, rollback ไม่ได้ — ใช้ version tag/digest</details>
 <details><summary>Q7: Pod/Deployment/Service ใน Kubernetes ต่างกันยังไง</summary>A: Pod = หน่วยรันเล็กสุด (1+ container); Deployment = คุมจำนวน replica + rolling update ของ Pod; Service = DNS/load-balancer หน้า Pod ให้ที่อยู่คงที่</details>
 
