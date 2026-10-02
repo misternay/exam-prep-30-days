@@ -61,7 +61,7 @@
 <ul>
 <li>Pipeline: เอกสาร → <strong>chunk</strong> (ตัดเป็นก้อน มี overlap) → <strong>embed</strong> (เป็น vector) → เก็บใน <strong>vector DB</strong> → ตอนถาม: embed คำถาม → retrieve top-k ที่ใกล้สุด → (rerank) → ใส่เข้า context → generate คำตอบ</li>
 <li>chunk size คือ trade-off: เล็ก = แม่นตำแหน่งแต่ขาดบริบท; ใหญ่ = มีบริบทแต่เสียงรบกวนเยอะ; overlap กันข้อมูลขาดรอยต่อ</li>
-<li>Hybrid search = keyword (BM25) + semantic (vector) ชนะทางใดทางหนึ่งเพียงอย่าง; reranker ช่วยจัดอันดับให้แม่นขึ้น</li>
+<li>Hybrid search = keyword (BM25) + semantic (vector) — มักครอบคลุมกว่ารอบเดียว แต่ไม่มีวิธีไหนชนะทุกกรณี ต้อง eval กับงานจริง; reranker ช่วยจัดอันดับให้แม่นขึ้น</li>
 <li>วลีสำคัญสำหรับข้อสอบ: RAG = “ให้ ความรู้/ข้อมูล” ไม่ได้“เปลี่ยนพฤติกรรม” โมเดล</li>
 </ul>
 

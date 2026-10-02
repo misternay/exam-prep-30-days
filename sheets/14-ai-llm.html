@@ -27,7 +27,7 @@
 <ul>
 <li>LLM = โมเดลทางสถิติที่ทำนาย <strong>token ถัดไป</strong> จากลำดับที่ผ่านมา (next-token prediction) แล้วอลุ่มตามความน่าจะเป็น (sampling)</li>
 <li>สถาปัตยกรรมคือ <strong>Transformer</strong>; หัวใจคือกลไก <strong>attention</strong> — แต่ละ token ถ่วงน้ำหนัก token ก่อนหน้าในบริบทของมัน (decoder ใช้ causal mask — ไม่เห็นอนาคต) จึงเข้าใจบริบทได้ดีกว่าโมเดลแบบเก่า</li>
-<li>สิ่งที่ต้องประกาศให้ชัดตอนตอบข้อสอบ: <strong>โมเดลไม่ “รู้ข้อเท็จจริง” — มันเลียนแบบรูปแบบของข้อความที่เคยเห็น</strong> จึงเกิด hallucination ได้เสมอ; การ “ยืนยันข้อเท็จจริง” ต้องมาจากภายนอก (RAG/tool/คนตรวจ)</li>
+<li>สิ่งที่ต้องประกาศให้ชัดตอนตอบข้อสอบ: <strong>โมเดลมีความรู้อยู่ใน weights (parametric) แต่ไม่ใช่ฐานข้อมูลที่ verified/อัปเดต — และไม่ได้ค้นเว็บเอง</strong> จึงเกิด hallucination ได้เสมอ; การยืนยันข้อเท็จจริงต้องมาจากภายนอก (RAG/tool/คนตรวจ)</li>
 <li>ขนาด = <strong>parameters</strong> (น้ำหนักในเครือข่าย; หลายพันล้านถึงหลายล้านล้าน) — โมเดลเป็นไฟล์น้ำหนัก + โค้ดรัน (inference); ไม่ได้ lookup อินเทอร์เน็ตเอง</li>
 </ul>
 
@@ -57,7 +57,7 @@
 <h3>Embeddings — สะพานสู่ RAG</h3>
 <ul>
 <li><strong>Embedding</strong> = แปลงข้อความเป็น vector ที่ “ความหมายใกล้ = ระยะใกล้” ใช้ค้น (semantic search), จัดกลุ่ม, แนะนำ, RAG</li>
-<li>คนละตัวกับโมเดลแชต (embedding model เล็กกว่า ถูกกว่า เร็ว) — จำไว้ว่า RAG ใช้ทั้ง embedding model (ค้น) และ LLM (อ่าน/ตอบ)</li>
+<li>คนละตัวกับโมเดลแชต (embedding model เล็กกว่า ถูกกว่า เร็ว) — RAG อาจใช้ lexical (BM25) / vector / hybrid เป็นตัวค้น ไม่จำเป็นต้องมี embedding หรือ vector DB เสมอ</li>
 </ul>
 
 <h3>Hallucination &amp; การควบคุม</h3>
@@ -69,7 +69,7 @@
 <h3>ปรับโมเดลแบบอื่นๆ</h3>
 <ul>
 <li><strong>Fine-tuning</strong> — เทรนต่อจากน้ำหนักเดิม (SFT/LoRA) เพื่อสอนงาน/สไตล์; ควรมีข้อมูลสะอาด + มี eval; อย่าใช้แก้ “ทั้งเรื่องความรู้” (จะล้าสมัย + อาจลดความสามารถเดิม)</li>
-<li><strong>Quantization</strong> — ย่อความละเอียดของน้ำหนัก (เช่น 4-bit) → กินหน่วยความจำ/ราคาน้อยลง เร็วขึ้น แลกความแม่นเล็กน้อย (โจทย์ชอบถามคำตอบนี้)</li>
+<li><strong>Quantization</strong> — ย่อความละเอียดของน้ำหนัก (เช่น 4-bit) → กิน memory/ราคาน้อยลงเป็นหลัก; อาจเร็วขึ้นเมื่อ hardware/kernels รองรับ — คุณภาพต้องวัดด้วย eval</li>
 <li><strong>Distillation</strong> — ให้โมเดลใหญ่เป็นครู สร้างข้อมูลสอนโมเดลเล็ก</li>
 <li><strong>Prompting vs RAG vs fine-tune</strong> — ลำดับ: prompt → RAG → fine-tune (รายละเอียดตารางในหัวข้อ 04)</li>
 </ul>
@@ -98,7 +98,7 @@
 <li>Temperature (สุ่ม) / Top-p (ตัดหางความน่าจะเป็น) / max tokens; งาน fact ใช้ temp ต่ำ</li>
 <li>Context window นับ input+output เป็น token; ราคาต่อ token</li>
 <li>Embedding = vector ความหมาย → RAG</li>
-<li>Quantization = ย่อความละเอียดน้ำหนัก; Fine-tune = สอนพฤติกรรม; RAG = ให้ความรู้</li>
+<li>Quantization = ลด memory/ราคา (อาจเร็วขึ้นถ้า kernels รองรับ); Fine-tune = สอนพฤติกรรม; RAG = ให้ความรู้</li>
 <li>Hallucination เกิดจากหลักการทำงาน ไม่ใช่ bug — ลดด้วย context/tool/verify เต็มที่ก็ไม่ 100%</li>
 <li>Benchmark เทียบตลาด; eval ของเราตัดสินจริง</li>
 </ul>
@@ -119,11 +119,11 @@
 
 <section class="sec s4" id="s4">
 <h2><span class="chip ic-note"></span>4. Self-check (ปิดหน้า ตอบก่อน)</h2>
-<details><summary>Q1: อธิบายการทำงานของ LLM หนึ่งย่อหน้าแบบที่เข้าใจจริง</summary>A: โมเดลทำนาย token ถัดไปจากบริบท (สถาปัตยกรรม Transformer + attention ถ่วงน้ำหนักความสำคัญของทุก token) ฝึกจากข้อความมหาศาล → เก่งภาษาตามรูปแบบสถิติ แต่ไม่มีฐานข้อเท็จจริงในตัว จึงต้องคิดเรื่อง hallucination เสมอ</details>
+<details><summary>Q1: อธิบายการทำงานของ LLM หนึ่งย่อหน้าแบบที่เข้าใจจริง</summary>A: โมเดลทำนาย token ถัดไปจากบริบท (Transformer + attention ถ่วงน้ำหนัก token ในตำแหน่งที่มองเห็น — ปัจจุบันและก่อนหน้า ตาม causal mask) ฝึกจากข้อความมหาศาล → มีความรู้เชิงสถิติใน weights แต่ไม่มีฐานข้อมูล verified ในตัว จึงต้องคิดเรื่อง hallucination เสมอ</details>
 <details><summary>Q2: 3 ขั้นตอนการฝึกโมเดลเรียงตามลำดับ</summary>A: 1) Pretraining ทำนาย token 2) SFT ทำตามคำสั่ง/ตัวอย่าง 3) RLHF/Preference alignment ให้ตอบที่มีประโยชน์-ปลอดภัยตามที่คนชอบ</details>
 <details><summary>Q3: Temperature กับ top-p ต่างกันยังไง</summary>A: temperature สเกลความ “คม/แบน” ของความน่าจะเป็นก่อนสุ่ม (สูง=หลากหลาย); top-p ตัดเฉพาะกลุ่มความน่าจะเป็นสะสมถึง p แล้วสุ่มในนั้น (ตัดหาง) — ใช้คุมความสุ่มคนละกลไก</details>
 <details><summary>Q4: ทำไม LLM hallucinate และลดได้ยังไง</summary>A: เพราะเลียนรูปแบบสถิติ ไม่มีแหล่งข้อเท็จจริง — ลดด้วยการป้อน context ที่ถูก (RAG), บังคับอ้างอิง, เทียบกับ tool, verifier, temp ต่ำ; ไม่มีทาง elimination 100%</details>
-<details><summary>Q5: Quantization คืออะไร แลกอะไร</summary>A: ลดความละเอียดของตัวเลขน้ำหนัก (เช่น fp16→4-bit) ให้โมเดลกิน RAM น้อยลง เร็วขึ้น/ถูกลง แลกกับคุณภาพที่อาจลดลงเล็กน้อย</details>
+<details><summary>Q5: Quantization คืออะไร แลกอะไร</summary>A: ลดความละเอียดของตัวเลขน้ำหนัก (เช่น fp16→4-bit) → กิน RAM/ราคาน้อยลงเป็นหลัก; อาจเร็วขึ้นถ้า hardware/kernels รองรับ; คุณภาพอาจลด — ต้องวัดด้วย eval</details>
 <details><summary>Q6: Benchmark กับ eval ของเราเองต่างกันเมื่อไรใช้</summary>A: benchmark = สาธารณะ ใช้เทียบตลาด (อาจ contamination/ไม่ตรงงานเรา); eval ของเรา = ชุดงานจริง+เกณฑ์ของเรา ใช้ตัดสินใจ deploy จริง</details>
 <details><summary>Q7: เลือกโมเดลเล็กหรือใหญ่ ตัดสินจากอะไร 3 อย่าง</summary>A: ความซับซ้อนงาน (reasoning ต้องใหญ่), งบ/ราคาต่อ token+latency, และข้อกำหนด privacy/ที่ตั้งข้อมูล (บนเครื่อง vs cloud)</details>
 

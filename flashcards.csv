@@ -5,11 +5,11 @@ Non-repeatable read คืออะไร,อ่านแถวเดิมซ�
 Phantom read คืออะไร,query เดิมได้จำนวนแถวเปลี่ยน เพราะมี INSERT/DELETE commit คั่นกลาง,db_sql
 Isolation level ไหนกัน phantom ได้ (ตามมาตรฐาน SQL),Serializable,db_sql
 SQL logical execution order,FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT,db_sql
-"Composite index (a,b,c) ใช้กับ WHERE b=? ได้ไหม",ไม่ได้ ต้องเริ่มจากคอลัมน์ซ้ายสุด (leftmost prefix rule),db_sql
+"Composite index (a,b,c) ใช้กับ WHERE b=? ได้ไหม",โดยทั่วไปใช้เต็มที่ไม่ได้ ต้องเริ่มจากคอลัมน์ซ้ายสุด (leftmost prefix); บาง DB มี skip scan ช่วยในเงื่อนไขจำกัด,db_sql
 RANK vs DENSE_RANK vs ROW_NUMBER (มีค่าเสมอ),"RANK=1,1,3 (ข้าม) / DENSE_RANK=1,1,2 (ไม่ข้าม) / ROW_NUMBER=1,2,3 (ไม่ซ้ำเสมอ)",db_sql
 N+1 query คืออะไร แก้ยังไง,ดึง list 1 ครั้ง + ยิงต่อรายแถว N ครั้ง; แก้ด้วย JOIN / eager load / batch WHERE IN,db_sql
 COUNT(*) vs COUNT(col),COUNT(*) นับทุกแถว; COUNT(col) ข้าม NULL,db_sql
-3NF กับ BCNF นิยาม,3NF: ไม่มี transitive dependency; BCNF: ทุก determinant ต้องเป็น candidate key,db_sql
+3NF กับ BCNF นิยาม,3NF: ไม่มี transitive dependency; BCNF: ทุก determinant เป็น superkey,db_sql
 DELETE vs TRUNCATE,DELETE มี WHERE ได้ มี log รายแถว; TRUNCATE ลบทั้งตาราง เร็วกว่า เป็น DDL,db_sql
 SOLID ย่อจากอะไร,"Single responsibility, Open/closed, Liskov substitution, Interface segregation, Dependency inversion",design
 SRP นิยาม,คลาสมีเหตุผลเดียวที่จะต้องถูกแก้ (one reason to change),design
@@ -22,7 +22,7 @@ Pattern: แปลง interface ที่ไม่เข้ากันให้
 Pattern: สร้าง object โดยซ่อน concrete class,Factory Method,design
 Clean Architecture dependency rule,dependency พุ่งเข้าหาแกนกลางเสมอ — ชั้นในไม่รู้จัก framework/DB/UI,design
 Entity กับ Value Object ต่างกันยังไง,Entity มี identity (id เดิม=ตัวเดิม); Value Object เท่ากันที่ค่า เปลี่ยนค่า=คนละvalue,design
-Semver 3 ตัวบอกอะไร,"MAJOR=breaking change, MINOR=ฟีเจอร์ใหม่ compatible, PATCH=แก้บั๊ก",design
+Semver 3 ตัวบอกอะไร,"MAJOR=breaking change, MINOR=ฟีเจอร์ใหม่ compatible, PATCH=bugfix แบบ backward-compatible",design
 ลิงก์กับข้อสอบ: Open/Closed ไม่ได้แปลว่า,ไม่ได้แปลว่าห้ามแก้โค้ดเลย — แปลว่าเพิ่มฟีเจอร์ด้วยการเพิ่มโค้ดมากกว่าไปรื้อ logic เดิม,design
 CIA triad คือ,"Confidentiality, Integrity, Availability",security
 OWASP A01 (2021) คือ,Broken Access Control,security
@@ -53,14 +53,14 @@ Skill คืออะไร (นิยามสั้น),แพ็คเกจ�
 Progressive disclosure ของ skill มี 3 ชั้นอะไร,1) name+description → 2) เนื้อ SKILL.md → 3) ไฟล์ประกอบ (references/scripts/assets) เฉพาะที่ต้องใช้,ai_skills
 ไฟล์แกนของ skill คืออะไร มีอะไรข้างใน,"SKILL.md — frontmatter (name, description) + body ขั้นตอน/กฎ + โฟลเดอร์ references/scripts/assets",ai_skills
 ทำไม description ของ skill สำคัญสุด,เป็นข้อความเดียวที่ agent เห็นตอนตัดสินใจโหลด — ต้องมี trigger ชัด (use when...),ai_skills
-Skill กับ memory ต่างกันยังไง,memory = ข้อเท็จจริงที่โหลดทุก session; skill = ขั้นตอนที่โหลดเฉพาะเมื่องานเข้าเงื่อนไข,ai_skills
+Skill กับ memory ต่างกันยังไง,memory = ข้อเท็จจริงข้าม session (โหลด/อ่านเมื่อต้องใช้); skill = ขั้นตอนที่โหลดเฉพาะเมื่องานเข้าเงื่อนไข,ai_skills
 Skill กับ tool ต่างกันยังไง,skill = วิธีทำงาน/ขั้นตอน; tool = ความสามารถลงมือทำ (เรียก API/รันโค้ด) — skill อาจบอกให้ใช้ tool ใด,ai_skills
 หลักเขียน skill ที่ดี,"กฎ + เหตุผล (why), หนึ่งบทเรียนหนึ่งกฎ, ไม่ใส่ประวัติ/วันที่/เลข PR, รายละเอียดยาวไป references",ai_skills
 เจอ skill ที่ใช้อยู่ผิดพลาดกลางงาน ควรทำอะไร,patch skill ทันที (แก้ขั้นตอน/เพิ่ม pitfall) — ให้บทเรียนอยู่กับ skill ไม่ใช่จำชั่วคราว,ai_skills
 เมื่อไรควรสร้าง skill ใหม่,เมื่องานนั้นทำซ้ำและมีวิธีที่พิสูจน์แล้ว (procedure + pitfall ที่เจอจริง),ai_skills
 Skill ถูกโหลดตอนไหน,เมื่อ description ตรงกับงานปัจจุบัน — ไม่ใช่โหลดอัตโนมัติทุกครั้ง (ประหยัด context),ai_skills
 Big-O: array access / hash เฉลี่ย / balanced BST / binary search,O(1) / O(1) / O(log n) / O(log n),programming
-Merge sort vs Quick sort (แย่สุด),Merge: O(n log n) ทุกกรณี stable ใช้ memory O(n); Quick: เฉลี่ย O(n log n) แย่สุด O(n²) in-place,programming
+Merge sort vs Quick sort (แย่สุด),Merge: O(n log n) ทุกกรณี stable ใช้ memory O(n); Quick: เฉลี่ย O(n log n) แย่สุด O(n²) in-place (stack เฉลี่ย O(log n)),programming
 Hash table worst case คือ,O(n) เมื่อ collision รุนแรง (เฉลี่ย O(1)),programming
 OOP 4 เสาหลัก,"Encapsulation, Abstraction, Inheritance, Polymorphism",programming
 Overload กับ Override ต่างกัน,Overload=ชื่อเดียวกันคนละพารามิเตอร์ (compile-time); Override=เขียนทับเมธอดแม่ (runtime),programming
@@ -69,7 +69,7 @@ Async/await เหมาะกับงานแบบไหน,I/O-bound (ร�
 ทำไม 0.1+0.2 ≠ 0.3,Floating point ฐาน 2 แทนทศนิยมฐานสิบได้แค่ประมาณ — เงินใช้ decimal/integer สตางค์,programming
 Stack vs Heap,Stack: local/เรียกฟังก์ชัน เร็ว จำกัด; Heap: object โตได้ GC จัดการ (ล้น stack = stack overflow),programming
 BFS หา shortest path ได้กับกราฟแบบไหน ใช้ structure อะไร,กราฟไม่ถ่วงน้ำหนัก; ใช้ Queue (DFS ใช้ stack/recursion หา cycle/เส้นทาง),programming
-Mutable กับ Immutable ต่างกันด้านไหน,"Immutable ปลอดภัยต่อ concurrency, คาดเดาง่าย, ใช้เป็น key ได้; แลกด้วยการคัดลอกเวลาจะแก้",programming
+Mutable กับ Immutable ต่างกันด้านไหน,"Immutable ปลอดภัยต่อ concurrency, คาดเดาง่าย, ใช้เป็น dict key ได้เมื่อ hashable; แลกด้วยการคัดลอกเวลาจะแก้",programming
 Fixed: ภาษา Java/Python ส่ง object แบบไหน,ส่ง reference by value — ฟังก์ชันแก้ object ที่ผู้เรียกถือได้ (ผลข้างเคียง),programming
 Git มี 3 พื้นที่อะไร,Working directory → Staging (index) → Repository (commits/HEAD),git
 HEAD คืออะไร,pointer ไปยัง commit/branch ปัจจุบัน,git
@@ -87,7 +87,7 @@ Continuous Delivery vs Deployment,Delivery=พร้อม deploy เสมอ �
 Pipeline stages มาตรฐานเรียง,checkout → install/build → unit test → scan (SAST/SCA/secret) → package artifact → deploy → smoke test,cicd
 "Build once, deploy everywhere หมายถึง",ใช้ artifact เดียวกันทุก env — ต่างแค่ config/secrets (ไม่ build ใหม่ต่อ env),cicd
 Canary กับ Blue-Green ต่างกัน,Canary=ปล่อย traffic บาง % ไปเวอร์ชันใหม่แล้วค่อยขยาย; Blue-Green=สอง env เต็มสลับ traffic ทั้งหมด,cicd
-Rolling update คือ,ทยอยแทน instance ทีละชุด — ไม่มี downtime แต่ช่วงเปลี่ยนมีสองเวอร์ชัน,cicd
+Rolling update คือ,ทยอยแทน instance ทีละชุด — ลด downtime ได้ (ต้องมี readiness/replicas พร้อม) แต่ช่วงเปลี่ยนมีสองเวอร์ชัน,cicd
 Feature flag แยกอะไรออกจากอะไร,แยก release (เปิดฟีเจอร์) ออกจาก deploy (ขึ้นโค้ด) — ไม่ต้อง deploy เพื่อเปิด/ปิด,cicd
 DORA metrics ปัจจุบัน (เดิม Four Keys),"5 ตัว: deployment frequency; change lead time; failed deployment recovery time (เดิม MTTR); change fail rate; deployment rework rate",cicd
 พังกลาง prod ทางเลือกมีอะไร,Rollback ไป artifact เก่า หรือ fix-forward (hotfix) — ต้องมี rollback plan + migration backward-compatible,cicd
@@ -115,7 +115,7 @@ EXPOSE ทำอะไรจริงไหม,แค่ metadata/เอกส�
 docker exec ใช้ทำอะไร,เข้าไปรันคำสั่ง/เชลล์ใน container ที่กำลังรันอยู่,docker
 Docker Compose ใช้ทำอะไร,"นิยามและรัน multi-service stack (dev/local): services, ports, volumes, environment, depends_on",docker
 K8s: Pod / Deployment / Service,Pod=หน่วยรันเล็กสุด (1+ container); Deployment=คุม replicas+rolling update; Service=DNS/LB หน้า Pod,docker
-ENTRYPOINT/CMD ต้องใช้ exec form เพราะ,ให้ process เป็น PID 1 รับ signal ถูกต้อง ไม่มี shell ตัวกลางค้าง (zombie),docker
+ENTRYPOINT/CMD ต้องใช้ exec form เพราะ,ตัด shell ตัวกลาง — process รับ signal ตรง แต่การ reap child ยังเป็นหน้าที่แอป (หรือใช้ --init),docker
 Agentic coding loop 6 ขั้น,Understand → Plan/spec → Implement (diff เล็ก) → Verify → Review → Commit,ai_coding
 'ยังไม่รัน = ยังไม่เสร็จ' หมายถึง,หลักฐานเดียวที่เชื่อได้คือ test/build/runtime จริงผ่าน — คำอธิบายของ AI ไม่ใช่หลักฐาน,ai_coding
 Spec-driven development ช่วยอะไร,"spec + acceptance criteria ก่อนลงมือ → ตรวจได้ทั้งก่อน/หลังสร้าง, ลดการตีความ, แยกงานเป็นชิ้นเล็ก",ai_coding
@@ -146,7 +146,7 @@ Kanban เน้นอะไร,WIP limit + flow (lead/cycle time) — ไม่
 Functional vs Non-functional requirement,"Functional=ระบบทำอะไร (รีเซ็ตรหัสได้); Non-functional=คุณภาพ (p95 200ms, concurrent, security)",sw_dev
 User story format,As a <role> I want <capability> so that <value> + acceptance criteria (Given/When/Then),sw_dev
 Story points คืออะไร,ขนาด/ความซับซ้อนแบบสัมพัทธ์ (fibonacci) ไม่ใช่ชั่วโมง — ไม่เทียบข้ามทีม,sw_dev
-Sprint Review vs Retrospective,Review=โชว์ increment กับ stakeholder; Retro=ทบทวนกระบวนการภายในทีมและปรับปรุง,sw_dev
+Sprint Review vs Retrospective,Review=ร่วม inspect outcome/feedback กับ stakeholder แล้วปรับแผน; Retro=ทบทวนกระบวนการภายในทีมและปรับปรุง,sw_dev
 Tech debt คืออะไร บริหารยังไง,ทางลัดที่สร้าง 'ดอกเบี้ย' (แก้ช้าลงเรื่อยๆ) — log เป็น backlog item จ่ายคืนเป็นระยะ,sw_dev
 Waterfall เหมาะกับงานแบบไหน,ข้อกำหนดนิ่ง/สัญญาชัด เอกสารครบ; ข้อเสีย: เปลี่ยนยาก เห็นผลช้า,sw_dev
 LLM ทำอะไรเป็นแกน,ทำนาย token ถัดไป (next-token prediction) บนสถาปัตยกรรม Transformer + attention,ai_llm
@@ -155,9 +155,9 @@ Temperature สูง/ต่ำ ให้ผลต่างกัน,สูง=�
 Top-p ทำงานยังไง,ตัด pool เฉพาะ token ที่ความน่าจะเป็นสะสมถึง p แล้วสุ่มภายใน (คุมหางการแจกแจง),ai_llm
 Context window คืออะไร,"เพดาน token (input+output) ที่โมเดลเห็นต่อการเรียกครั้งเดียว — ยาว=แพง+ช้า, ราคาคิดต่อ token",ai_llm
 Embedding คืออะไร ใช้ทำอะไร,Vector ความหมายของข้อความ (ใกล้=คล้าย) — ใช้ semantic search/RAG/จัดกลุ่ม,ai_llm
-Hallucination เกิดจากอะไร,โมเดลเลียนแบบรูปแบบสถิติ ไม่มีฐานข้อเท็จจริงในตัว — ลดได้แต่ไม่ elimination 100%,ai_llm
+Hallucination เกิดจากอะไร,โมเดลมีความรู้เชิงสถิติใน weights แต่ไม่มีฐานข้อมูล verified/อัปเดตในตัว — ลดได้แต่ไม่ elimination 100%,ai_llm
 RAG vs Fine-tune (เชิง LLM),RAG=ป้อนความรู้ผ่าน context (สด/อ้างอิงได้); fine-tune=ปรับพฤติกรรม/สไตล์ด้วยการเทรนต่อ,ai_llm
-Quantization คืออะไร,ลดความละเอียด bits ของน้ำหนัก (เช่น fp16→4-bit) → เล็กลง เร็วขึ้น ถูกลง แลกความแม่นเล็กน้อย,ai_llm
+Quantization คืออะไร,ลดความละเอียด bits ของน้ำหนัก (เช่น fp16→4-bit) → memory/ราคาลดลงเป็นหลัก; อาจเร็วขึ้นถ้า kernels รองรับ แลกคุณภาพเล็กน้อย (วัดด้วย eval),ai_llm
 Benchmark กับ eval ของเราเอง ต่างกัน,Benchmark=สาธารณะเทียบตลาด (อาจ contamination); eval เอง=ชุดงานจริง+เกณฑ์เรา ใช้ตัดสิน deploy,ai_llm
 RLHF ทำอะไร,ปรับให้โมเดลเลือกคำตอบที่คนพอใจ/ปลอดภัย หลัง SFT — ไม่ได้เพิ่มความรู้ใหม่,ai_llm
 เลือกโมเดลเล็ก vs ใหญ่ ตัดสินจาก,"ความซับซ้อนงาน (reasoning ต้องใหญ่), งบ/latency, privacy (บนเครื่อง vs cloud)",ai_llm

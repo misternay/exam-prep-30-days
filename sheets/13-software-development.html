@@ -42,8 +42,8 @@
 <h3>Scrum (รู้ให้ครบ 3 หมวด)</h3>
 <ul>
 <li><strong>Roles:</strong> Product Owner (จัดลำดับคุณค่า/backlog), Scrum Master (โค้ช/ขจัดอุปสรรค — ไม่ใช่เจ้านายทีม), Developers (ทำ increment)</li>
-<li><strong>Artifacts:</strong> Product Backlog (รายการทั้งหมด), Sprint Backlog (ที่เลือกทำใน sprint), Increment (ของที่เสร็จตาม Definition of Done)</li>
-<li><strong>Events:</strong> Sprint (timebox ไม่เกิน 1 เดือน — Scrum Guide 2020) → Sprint Planning (เลือกงาน+เป้า) → Daily Scrum (15 นาที sync) → Sprint Review (โชว์ของให้ stakeholder) → Retrospective (ปรับกระบวนการ)</li>
+<li><strong>Artifacts:</strong> Product Backlog (รายการทั้งหมด), Sprint Backlog (Sprint Goal + งานที่เลือก + แผนส่งมอบ), Increment (ของที่เสร็จตาม Definition of Done)</li>
+<li><strong>Events:</strong> Sprint (timebox ไม่เกิน 1 เดือน) → Sprint Planning (เลือกงาน+เป้า) → Daily Scrum (15 นาที sync) → Sprint Review (ร่วม inspect outcome กับ stakeholder + ปรับแผน — ไม่ใช่แค่ presentation) → Retrospective (ปรับกระบวนการ)</li>
 <li>เน้น empiricism: transparency, inspection, adaptation</li>
 </ul>
 
@@ -81,7 +81,7 @@
 <h3>Architecture scale &amp; API (ทวนเชื่อม 02)</h3>
 <ul>
 <li>วิวัฒนาการ: monolith → <strong>modular monolith</strong> → microservices; เลือกตามขนาดทีม/ความต้องการ scale แยกส่วน; microservices แลกมาด้วย network, distributed transaction, ops หนักขึ้น</li>
-<li><strong>Semantic Versioning:</strong> MAJOR(breaking).MINOR(feature เพิ่มแบบ compatible).PATCH(bugfix) — 0.x = ยังไม่ stable</li>
+<li><strong>Semantic Versioning:</strong> MAJOR(breaking).MINOR(feature เพิ่มแบบ compatible).PATCH(bugfix แบบ backward-compatible) — 0.x = ยังไม่ stable</li>
 <li>REST sanuk: ดูหัวข้อ 02; idempotency ของ GET/PUT/DELETE สำคัญต่อ retry ที่ปลอดภัย</li>
 </ul>
 
@@ -93,7 +93,7 @@
 <li>SDLC 6 เฟส; waterfall vs agile ข้อดี/ข้อเสียสั้นๆ</li>
 <li>Agile Manifesto 4 คู่ค่า</li>
 <li>Scrum: roles 3, artifacts 3, events 5 (Planning, Daily, Review, Retro + Sprint ตัวกรอบ)</li>
-<li>Sprint = <strong>timebox ไม่เกิน 1 เดือน</strong> (Guide 2020 เลิกใช้กรอบ 2–4 สัปดาห์แบบตำราเก่า; ของจริงนิยม 1–2 สัปดาห์)</li>
+<li>Sprint = <strong>timebox ไม่เกิน 1 เดือน</strong> (กฎนี้มีมาตั้งแต่ Guide 2017 — กรอบ “2–4 สัปดาห์” เป็นตำราเก่า; ของจริงนิยม 1–2 สัปดาห์)</li>
 <li>Kanban = WIP limit + flow; XP = TDD/pair/CI</li>
 <li>Functional vs non-functional (ตัวอย่างทั้งคู่); story format + Given/When/Then</li>
 <li>Story points = relative; velocity ไม่ใช้เทียบทีม</li>
@@ -123,7 +123,7 @@
 <details><summary>Q4: Kanban ใช้เมื่อไร ต่างจาก Scrum ยังไง</summary>A: งานไหลต่อเนื่อง/หลากหลาย (support, ops) — ไม่มี sprint/timebox, เด่นที่ WIP limit และ lead time; Scrum มี timebox + roles/events ชัด</details>
 <details><summary>Q5: “ระบบรองรับผู้ใช้พร้อมกัน 500 คน” เป็น requirement ชนิดไหน</summary>A: Non-functional (performance/scale) — ระบุคุณภาพ ไม่ใช่ฟังก์ชัน; ฟังก์ชันจะแนว “ทำอะไรได้”</details>
 <details><summary>Q6: Story points ต่างจากชั่วโมงยังไง และทำไมไม่เทียบข้ามทีม</summary>A: Points วัดขนาดแบบสัมพัทธ์ของทีมนั้น (relative sizing) ไม่ผูกเวลา — สเกลของแต่ละทีมไม่เหมือนกัน เทียบข้ามทีมจึงไร้ความหมาย</details>
-<details><summary>Q7: Semver บอกอะไร: 2.4.1 → 3.0.0</summary>A: MAJOR ขยับ = มี breaking change; MINOR = ฟีเจอร์ใหม่ compatible; PATCH = แก้บั๊ก — ผู้ใช้ต้องอ่าน/ทดสอบก่อนอัป major</details>
+<details><summary>Q7: Semver บอกอะไร: 2.4.1 → 3.0.0</summary>A: MAJOR ขยับ = มี breaking change; MINOR = ฟีเจอร์ใหม่ compatible; PATCH = bugfix แบบ backward-compatible — ผู้ใช้ต้องอ่าน/ทดสอบก่อนอัป major</details>
 
 </section>
 

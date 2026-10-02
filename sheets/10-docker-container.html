@@ -41,14 +41,14 @@
 
 <h3>Dockerfile ที่ดี (ท่องหลัก)</h3>
 <pre># 1. multi-stage: stage build ใหญ่ → final เล็ก ไม่มี toolchain
-FROM node:20 AS build
+FROM node:24 AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci                # ใช้ lockfile = reproducible
 COPY . .
 RUN npm run build
 
-FROM node:20-slim
+FROM node:24-slim
 WORKDIR /app
 COPY --from=build /app/dist ./dist
 USER node                 # ไม่รันเป็น root
@@ -56,7 +56,7 @@ EXPOSE 3000               # เอกสารประกอบ (ไม่ไ�
 CMD ["node", "dist/server.js"]</pre>
 <ul>
 <li><strong>Best practices:</strong> base image เล็ก/ официальный, pin version, multi-stage, ไม่มี secret ใน image (ใช้ env/secret mount), <strong>.dockerignore</strong> ตัด node_modules/.git ออกก่อน COPY, RUN รวมคำสั่งที่เกี่ยวกัน (ลด layer), HEALTHCHECK สำหรับ orchestrator</li>
-<li><strong>ENTRYPOINT vs CMD:</strong> ENTRYPOINT = executable หลัก (override ได้ด้วย <code>docker run --entrypoint</code>); CMD = default command/args ที่ command line แทนได้; ถ้าใช้คู่กัน CMD = default args ของ ENTRYPOINT — ใช้ <strong>exec form</strong> <code>["exe","arg"]</code> เสมอ (PID 1 รับ signal ถูก, ไม่มี shell zombie)</li>
+<li><strong>ENTRYPOINT vs CMD:</strong> ENTRYPOINT = executable หลัก (override ได้ด้วย <code>docker run --entrypoint</code>); CMD = default command/args ที่ command line แทนได้; ถ้าใช้คู่กัน CMD = default args ของ ENTRYPOINT — ใช้ <strong>exec form</strong> <code>["exe","arg"]</code> เสมอ (executable รับ signal โดยตรง; การ reap child ยังเป็นหน้าที่แอป — หรือใส่ --init)</li>
 </ul>
 
 <h3>คำสั่งที่ต้องแม่น</h3>
@@ -74,7 +74,7 @@ docker pull / docker push</pre>
 <ul>
 <li><strong>Stateless-first:</strong> container ควรไม่มี state ในตัว (12-factor) — state ไป DB/object storage/queue</li>
 <li>ถ้าต้องเก็บไฟล์: <strong>Volume</strong> (Docker จัดการ, life-cycle แยกจาก container) vs <strong>Bind mount</strong> (ผูกโฟลเดอร์โฮสต์ — ใช้ตอน dev); ข้อมูลใน writable layer หายเมื่อ container ถูกลบ</li>
-<li><strong>Network:</strong> default bridge —ต้อง map port <code>-p host:container</code>; user-defined network — container เรียกกันด้วย “ชื่อ” ได้ (DNS ในตัว) เหมาะกับ multi-service</li>
+<li><strong>Network:</strong> default bridge — container คุยกันด้วย IP ได้ แต่ไม่มี DNS ชื่อ; <code>-p host:container</code> ไว้เปิดรับจากภายนอก host; user-defined network — เรียกกันด้วย “ชื่อ” ได้ (DNS ในตัว) เหมาะกับ multi-service</li>
 <li><strong>Docker Compose:</strong> นิยามหลาย service ใน <code>docker-compose.yml</code> (services, image/build, ports, volumes, environment, depends_on) → <code>docker compose up -d</code> — ใช้ dev/local stack</li>
 </ul>
 

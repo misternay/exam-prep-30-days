@@ -109,7 +109,7 @@
 <ul>
 <li>“เข้ารหัสด้วย MD5” ผิดทุกกรณี (MD5/SHA ไม่ใช่สำหรับ password); “hash อย่างเดียวไม่ salt” ก็ผิด</li>
 <li>XSS = ปัญหา “output encoding” ตอน render; SQLi = ปัญหา “แยกคำสั่งจากข้อมูล” — อย่าสลับกัน</li>
-<li>401 vs 403: 401 = ยังไม่ได้ยืนยันตัวตน/ไม่ผ่าน; 403 = ยืนยันแล้วแต่ไม่มีสิทธิ์</li>
+<li>401 vs 403: 401 = ขาด auth credentials ที่ใช้ได้; 403 = เข้าใจ request แต่ปฏิเสธ (จะ authenticate แล้วหรือไม่ก็ได้)</li>
 <li>OAuth2 ไม่ใช่ authentication — ถ้าข้อสอบถาม authentication ต้องพูด OIDC</li>
 <li>HTTPS/TLS ป้องกันการดักฟังระหว่างทาง (in transit) ไม่ได้ป้องกัน SQLi/XSS — คนละชั้น</li>
 <li>“Escaping” เฉยๆ ไม่ใช่คำตอบของ SQLi ที่ดี — คำตอบหลักคือ parameterized query</li>

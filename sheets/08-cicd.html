@@ -59,7 +59,7 @@
 <thead><tr><th>กลยุทธ์</th><th>วิธี</th><th>จุดเด่น/ข้อเสีย</th></tr></thead>
 <tbody>
 <tr><td>Recreate</td><td>หยุดเก่า → เริ่มใหม่</td><td>ง่ายสุด แต่ downtime</td></tr>
-<tr><td>Rolling</td><td>ทยอยแทน instance ทีละชุด</td><td>ไม่ downtime แต่ช่วงเปลี่ยนผ่านมีสองเวอร์ชัน</td></tr>
+<tr><td>Rolling</td><td>ทยอยแทน instance ทีละชุด</td><td>ลด downtime ได้ (ต้องมี readiness/replicas + เวอร์ชัน compatible)</td></tr>
 <tr><td>Blue-Green</td><td>มีสอง environment สลับ traffic</td><td>rollback เร็ว (สลับกลับ) แต่รันสองชุด = แพง/ต้อง DB compatible</td></tr>
 <tr><td>Canary</td><td>ส่ง traffic บาง % ไปเวอร์ชันใหม่ก่อน</td><td>เสี่ยงต่ำ ค่อยขยาย; ต้องมี metric ตรวจ</td></tr>
 <tr><td>Feature flag</td><td>deploy ได้แต่ปิดฟีเจอร์ด้วย flag</td><td>แยก release ออกจาก deploy — เปิด/ปิดไม่ต้อง deploy</td></tr>
@@ -79,7 +79,7 @@
 
 <h3>DORA metrics (วัดความเร็ว+คุณภาพ) — ปัจจุบัน 5 ตัว (เดิม Four Keys)</h3>
 <ul>
-<li><strong>5 metrics ปัจจุบัน:</strong> Deployment frequency · Change lead time · Failed deployment recovery time (ชื่อเดิม MTTR) · Change fail rate · Deployment rework rate (เพิ่มปี 2024)</li>
+<li><strong>5 metrics ปัจจุบัน:</strong> Deployment frequency · Change lead time · Failed deployment recovery time (ชื่อเดิม MTTR — นับเฉพาะการกู้จาก deploy ที่ fail) · Change fail rate · Deployment rework rate (เพิ่มปี 2024)</li>
 <li><strong>Four Keys (ชุดเดิม 4 ตัว — ข้อสอบส่วนมากยังอ้างชุดนี้):</strong> Deployment frequency · Lead time for changes · Change failure rate · Time to Restore Service (MTTR)</li>
 <li>ทีม top performers ทำได้ดีทั้ง speed และ stability — ใช้ metrics เพื่อปรับปรุง ไม่ใช่จัดอันดับ/กดดันทีม</li>
 </ul>
@@ -123,7 +123,7 @@
 
 </section>
 
-<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> Delivery vs Deployment · ตาราง deploy strategies 5 แถว · DORA 4</div>
+<div class="memory"><strong>ท่อง 3 อย่างวันนี้:</strong> Delivery vs Deployment · ตาราง deploy strategies 5 แถว · DORA 5 metrics</div>
 
 <nav>ก่อนหน้า: <a href="07-version-control.html">07 · Version Control</a> · ถัดไป: <a href="09-quality-engineering.html">09 · Quality Engineering</a></nav>
 

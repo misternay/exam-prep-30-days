@@ -26,7 +26,7 @@
 <h3>หลักคิดตั้งต้น</h3>
 <ul>
 <li>LLM ในงานเขียนโค้ด = “เพื่อนร่วมงานที่เร็วมาก แต่เพิ่งวันแรกในโปรเจกต์ทุกวัน” — รู้ภาษาและ pattern ทั่วไป แต่ไม่รู้ codebase, convention, ข้อตกลงของทีม → <strong>หน้าทีคุณคือให้ context และ verify</strong></li>
-<li>ความเสี่ยงหลักของ AI coding ตาม DORA: เพิ่ม throughput แต่ก็เพิ่ม <strong>instability</strong> ถ้าไม่มี test/review pipeline รองรับ — workflow ที่ดีจะไปด้วยกันกับ CI/CD คุณภาพสูง</li>
+<li>ความเสี่ยงหลักของ AI coding (DORA 2024): productivity รายบุคคลเพิ่ม แต่ delivery throughput และ stability <strong>ลดลง</strong>ในข้อมูลศึกษา ถ้าไม่มี test/review pipeline รองรับ — workflow ที่ดีไปด้วยกันกับ CI/CD คุณภาพสูง</li>
 <li>กฎเหล็ก: <strong>“ยังไม่รัน = ยังไม่เสร็จ”</strong> — ผลลัพธ์ต้องผ่าน test/build จริง ไม่ใช่คำอธิบายว่าควรจะผ่าน</li>
 </ul>
 
@@ -65,7 +65,7 @@
 <ul>
 <li><strong>Hallucinated API/package</strong> — ไลบรารีหรือฟังก์ชันที่ไม่มีจริง (หรือเป็นชื่อ package ปลอมใน registry = supply chain risk) → ตรวจกับเอกสารจริงก่อนใช้; pin version</li>
 <li><strong>Prompt injection ผ่านไฟล์/หน้าเว็บ</strong> — comment ในโค้ด, ไฟล์ใน repo, เนื้อหาเว็บที่ agent อ่าน อาจมีคำสั่งซ่อน → อย่าให้ agent มีสิทธิกว้างเกิน (least privilege), ตรวจ action อันตราย (ลบไฟล์, ส่งข้อมูลออก)</li>
-<li><strong>Secrets หลุดเข้า context</strong> — ไฟล์ .env / คีย์ที่อ่านเข้าไปอาจไปโผล่ใน log ที่อื่น; ใช้ secret manager + กันไฟล์ลับด้วย .gitignore/.claudeignore</li>
+<li><strong>Secrets หลุดเข้า context</strong> — ไฟล์ .env / คีย์ที่อ่านเข้าไปอาจไปโผล่ใน log ที่อื่น; ใช้ secret manager + ตั้ง permission/deny rules ให้ agent ห้ามอ่านไฟล์ลับ (โน้ต: .gitignore กันแค่การ commit — ไม่ใช่ access control)</li>
 <li><strong>Attribution &amp; license</strong> — โค้ดจากโมเดลอาจคล้ายของมีลิขสิทธิ์ — นโยบายบริษัทเป็นตัวตัดสิน; commit message ควรบอกส่วนที่ AI ช่วย</li>
 </ul>
 
